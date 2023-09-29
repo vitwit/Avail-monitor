@@ -1,5 +1,10 @@
 package config
 
+import (
+	"log"
+	"os/user"
+)
+
 type (
 	Prometheus struct {
 		ListenAddress     string `mapstructure:"listen_address"`
@@ -20,3 +25,10 @@ type (
 		Endpoints  Endpoints  `mapstructure:"websocket_endpoint"`
 	}
 )
+
+func ReadFromFile() (*Config, error) {
+	usr, err := user.Current()
+	if err != nil {
+		log.Printf("Error %v", err)
+	}
+}

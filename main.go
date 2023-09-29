@@ -1,18 +1,3 @@
-// package main
-
-// import (
-// 	"net/http"
-
-// 	"github.com/prometheus/client_golang/prometheus"
-// 	"github.com/prometheus/client_golang/prometheus/promhttp"
-// )
-
-// func main() {
-
-// 	prometheus.MustRegister() //need to pass argument
-// 	http.Handle("/metrics", promhttp.Handler())
-// }
-
 package main
 
 import (
@@ -23,13 +8,30 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// prometheus.MustRegister() //need to pass argument
+// http.Handle("/metrics", promhttp.Handler())
+
 // Response represents the desired JSON format
 type Response struct {
 	Version string `json:"version"`
 }
 
 func main() {
-	// WebSocket URL
+	// cfg, err := config.ReadFromFile()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// collector := exporter.NewAvailMetric(cfg)
+
+	// prometheus.MustRegister(collector)
+	// http.Handle("/metrics", promhttp.Handler()) // exported metrics can be seen in /metrics
+	// err = http.ListenAndServe(fmt.Sprintf("%s", cfg.Prometheus.ListenAddress), nil)
+	// if err != nil {
+	// 	log.Printf("Error while listening on server : %v", err)
+	// }
+
+	//WebSocket URL
 	wsURL := "wss://kate.avail.tools/ws"
 
 	// Establish WebSocket connection

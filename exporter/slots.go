@@ -1,8 +1,12 @@
 package exporter
 
 import (
+	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
+
+const slotSchedule = 25 * time.Second
 
 // scrape time = 25 secs
 // two different scrape times if yes {different set of metrics}
