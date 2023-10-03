@@ -1,9 +1,12 @@
 package exporter
 
 import (
+	"log"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/vitwit/avail-monitor/config"
 	"github.com/vitwit/avail-monitor/monitor"
+	//"github.com/vitwit/avail-monitor/types"
 )
 
 type availMetric struct {
@@ -26,8 +29,12 @@ func (c *availMetric) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *availMetric) Collect(ch chan<- prometheus.Metric) {
-	ver, err := monitor.GetVersion(c.config)
-	if ver.Result.version != "" {
-		ch <- prometheus.MustNewConstMetric(c.availVersion, prometheus.GaugeValue, 1, ver.Result.version)
+
+	version, err := monitor.GetVersion(c.config)
+	if version.Result.ClientVersion != "" {
+		ch <- prometheus.MustNewConstMetric(c.availVersion, prometheus.GaugeValue, 1, version.Result.ClientVersion)
+	}
+	if err != nil {
+		log.Printf("failed to fetch version %s", err)
 	}
 }
