@@ -1,72 +1,126 @@
 package config
 
-import (
-	"log"
-	"os/user"
-	"path"
+import "github.com/spf13/viper"
 
-	"github.com/spf13/viper"
-	"gopkg.in/go-playground/validator.v9"
-)
+type Config struct {
+	URLEndpoint       string `mapstructure:"url_endpoint"`
+	PrometheusAddress string `mapstructure:"prometheus_address"`
+	ListenAddress     string `mapstructure:"listen_address"`
+}
 
-type (
-	Prometheus struct {
-		ListenAddress     string `mapstructure:"listen_address"`
-		PrometheusAddress string `mapstructure:"prometheus_address"`
-	}
-
-	Scraper struct {
-		Rate string `mapstructure:"rate"`
-	}
-
-	Endpoints struct {
-		URLEndpoint string `mapstructure:"url_endpoint"`
-	}
-
-	Config struct {
-		Prometheus Prometheus `mapstructure:"prometheus"`
-		Scraper    Scraper    `mapstructure:"scraper"`
-		Endpoints  Endpoints  `mapstructure:"url_endpoint"`
-	}
-
-	Response struct {
-		ClientVersion string `json:"clientVersion"`
-	}
-)
-
-func ReadFromFile() (*Config, error) {
-	usr, err := user.Current()
-	if err != nil {
-		log.Printf("Error while reading current user : %v", err)
-	}
-
-	configPath := path.Join(usr.Name, `./config.toml`)
-	log.Printf("config path of root: %s", &configPath)
-
-	v := viper.New()
+func ReadConfig(path string) (config Config, err error) {
+	viper.AddConfigPath(path)
 	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	if err := v.ReadInConfig(); err != nil {
-		log.Fatalf("error while reading config.toml: %v", err)
+	viper.SetConfigType("toml")
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		return
 	}
 
-	var cfg Config
-	if err := v.Unmarshal(&cfg); err != nil {
-		log.Fatalf("error unmarshaling config.toml to application config: %v", err)
-	}
-
-	if err := cfg.Validate(); err != nil {
-		log.Fatalf("error occurred in config validation: %v", err)
-	}
-
-	return &cfg, nil
-
+	err = viper.Unmarshal(&config)
+	return
 }
 
-func (c *Config) Validate(e ...string) error {
-	v := validator.New()
-	if len(e) == 0 {
-		return v.Struct(c)
-	}
-	return v.StructExcept(c, e...)
-}
+// import (
+// 	"os"
+
+// 	"github.com/BurntSushi/toml"
+
+// 	// "github.com/spf13/viper/internal/encoding/toml"
+// 	"gopkg.in/go-playground/validator.v9"
+// )
+
+// type (
+// 	Prometheus struct {
+// 		ListenAddress     string `mapstructure:"listen_address"`
+// 		PrometheusAddress string `mapstructure:"prometheus_address"`
+// 	}
+
+// 	// Scraper struct {
+// 	// 	Rate string `mapstructure:"rate"`
+// 	// }
+
+// 	Endpoints struct {
+// 		URLEndpoint string `mapstructure:"url_endpoint"`
+// 	}
+
+// 	Config struct {
+// 		Prometheus Prometheus `mapstructure:"prometheus"`
+// 		// Scraper    Scraper    `mapstructure:"scraper"`
+// 		Endpoints Endpoints `mapstructure:"url_endpoint"`
+// 	}
+
+// 	Response struct {
+// 		ClientVersion string `json:"clientVersion"`
+// 	}
+// )
+
+// // func ReadFromFile() (*Config, error) {
+// // 	// version, err := os.ReadFile("config.toml")
+
+// // if err != nil {
+// // 	log.Fatal(err)
+// // }
+// // fmt.Println(string(version))
+
+// // v := viper.New()
+// // v.AddConfigPath(".")
+// // v.AddConfigPath("./config/")
+// // v.SetConfigName("config")
+// // if err := v.ReadInConfig(); err != nil {
+// // 	log.Fatalf("error while reading config.toml: %v", err)
+// // }
+// // var cfg Config
+// // if err := v.Unmarshal(&cfg); err != nil {
+// // 	log.Fatalf("error unmarshaling config.toml to application config: %v", err)
+// // }
+// // if err := cfg.Validate(); err != nil {
+// // 	log.Fatalf("error occurred in config validation: %v", err)
+// // }
+// // return &cfg, nil
+
+// // v := viper.New()
+// // v.SetConfigType("toml")
+// // viper.SetConfigName("config")
+// // viper.AddConfigPath(currentUser.HomeDir + "avail-monitor")
+// // if err := v.ReadInConfig(); err != nil {
+// // 	log.Fatalf("error while reading config.toml: %v", err)
+// // }
+
+// // var cfg Config
+// // if err := v.Unmarshal(&cfg); err != nil {
+// // 	log.Fatalf("error unmarshaling config.toml to application config: %v", err)
+// // }
+
+// // if err := cfg.Validate(); err != nil {
+// // 	log.Fatalf("error occurred in config validation: %v", err)
+// // }
+
+// // return &cfg, nil
+
+// // }
+
+// func (c *Config) GetConfig(configFileName string) error {
+// 	// Open the TOML configuration file
+// 	tomlFile, err := os.Open(configFileName)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer tomlFile.Close()
+
+// 	// Decode the TOML content into the Config struct
+// 	if _, err := NewDecoder(tomlFile).value(c) err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+// func (c *Config) Validate(e ...string) error {
+// 	v := validator.New()
+// 	if len(e) == 0 {
+// 		return v.Struct(c)
+// 	}
+// 	return v.StructExcept(c, e...)
+// }

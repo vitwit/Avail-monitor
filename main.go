@@ -1,82 +1,128 @@
+// //------ two metrics below.........
+
+// package main
+
+// import (
+// 	"encoding/json"
+// 	"fmt"
+// 	"io"
+// 	"log"
+// 	"net/http"
+// 	"os"
+// 	"time"
+
+// 	"github.com/prometheus/client_golang/prometheus"
+// 	"github.com/prometheus/client_golang/prometheus/promhttp"
+// )
+
+// const (
+// 	apiEndpoint = "http://64.227.177.52:8080/node/version"
+// 	metricsPort = 9090 // Port for Prometheus to scrape metrics
+// )
+
+// var (
+// 	nodeVersion = prometheus.NewGauge( //slots.go
+// 		prometheus.GaugeOpts{
+// 			Name: "node_version",
+// 			Help: "node Version",
+// 		},
+// 	)
+// )
+
+// var (
+// 	chainName = prometheus.NewGauge( //slots.go
+// 		prometheus.GaugeOpts{
+// 			Name: "chain",
+// 			Help: "name of the chain",
+// 		},
+// 	)
+// )
+
+// func fetchDataAndSetMetric() {
+// 	resp, err := http.Get(apiEndpoint)
+// 	if err != nil {
+// 		fmt.Println("Failed to fetch data:", err)
+// 		return
+// 	}
+// 	defer resp.Body.Close()
+
+// 	if resp.StatusCode != http.StatusOK {
+// 		fmt.Printf("Failed to fetch data. Status code: %d\n", resp.StatusCode)
+// 		return
+// 	}
+
+// 	body, err := io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		fmt.Println("Failed to read response body:", err)
+// 		return
+// 	}
+
+// 	var data map[string]string
+// 	if err := json.Unmarshal(body, &data); err != nil {
+// 		fmt.Println("Failed to unmarshal JSON:", err)
+// 		return
+// 	}
+
+// 	version, found := data["clientVersion"]
+// 	if !found {
+// 		fmt.Println("Version not found in response")
+// 		return
+// 	}
+
+// 	chain, found := data["chain"]
+// 	if !found {
+// 		fmt.Println("Version not found in response")
+// 		return
+// 	}
+
+// 	chainName.Set(float64(1))
+// 	fmt.Printf("chain: %s\n", chain)
+// 	fmt.Printf("Node Version: %s\n", version)
+// }
+
+// func main() {
+
+// 	version, err := os.ReadFile("config.toml")
+
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	fmt.Println(string(version))
+// 	prometheus.MustRegister(nodeVersion) //slots.go file
+
+// 	go func() {
+// 		http.Handle("/metrics", promhttp.Handler())
+// 		fmt.Printf("Starting Prometheus server on :%d\n", metricsPort)
+// 		http.ListenAndServe(fmt.Sprintf(":%d", metricsPort), nil)
+// 	}()
+
+// 	for {
+// 		fetchDataAndSetMetric()
+// 		time.Sleep(60 * time.Second)
+// 	}
+// }
+
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
-	"github.com/gorilla/websocket"
+	"github.com/vitwit/avail-monitor/config"
 )
 
-// prometheus.MustRegister() //need to pass argument
-// http.Handle("/metrics", promhttp.Handler())
-
-// Response represents the desired JSON format
-type Response struct {
-	Version string `json:"version"`
-}
-
 func main() {
-	// cfg, err := config.ReadFromFile()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// collector := exporter.NewAvailMetric(cfg)
-
-	// prometheus.MustRegister(collector)
-	// http.Handle("/metrics", promhttp.Handler()) // exported metrics can be seen in /metrics
-	// err = http.ListenAndServe(fmt.Sprintf("%s", cfg.Prometheus.ListenAddress), nil)
-	// if err != nil {
-	// 	log.Printf("Error while listening on server : %v", err)
-	// }
-
-	//WebSocket URL
-	wsURL := "wss://kate.avail.tools/ws"
-
-	// Establish WebSocket connection
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	config, err := config.ReadConfig(".")
 	if err != nil {
-		log.Fatal("Error connecting to WebSocket:", err)
+		log.Fatalf(err.Error())
 	}
-	defer conn.Close()
+	//fmt.Println(config)
 
-	// Prepare the JSON-RPC request
-	request := map[string]interface{}{
-		"id":      1,
-		"jsonrpc": "2.0",
-		"method":  "system_version",
-	}
-
-	// Send the request
-	err = conn.WriteJSON(request)
+	v, err := os.ReadFile(config.URLEndpoint)
+	fmt.Println(v)
 	if err != nil {
-		log.Fatal("Error sending request:", err)
+		log.Fatalf(err.Error())
 	}
 
-	// Read the response
-	var response map[string]interface{}
-	err = conn.ReadJSON(&response)
-	if err != nil {
-		log.Fatal("Error reading response:", err)
-	}
-
-	// Extract the "result" field
-	result, ok := response["result"].(string)
-	if !ok {
-		log.Fatal("Response does not contain a valid 'result' field")
-	}
-
-	// Create the desired response format
-	formattedResponse := Response{
-		Version: result,
-	}
-
-	// Marshal the formatted response into JSON
-	jsonResponse, err := json.Marshal(formattedResponse)
-	if err != nil {
-		log.Fatal("Error marshaling response:", err)
-	}
-
-	fmt.Println(string(jsonResponse))
 }

@@ -12,7 +12,7 @@ const slotSchedule = 25 * time.Second
 // two different scrape times if yes {different set of metrics}
 // all the queries in single ws conn.
 var (
-	nodeVersion = prometheus.NewGauge(prometheus.GaugeOpts{
+	clientVersion = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "avail_node_version",
 		Help: "node version of avail",
 	})
@@ -109,7 +109,7 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(nodeVersion)
+	//prometheus.MustRegister(clientVersion)
 	prometheus.MustRegister(chainID)
 	prometheus.MustRegister(latestBestBlock)
 	prometheus.MustRegister(latestFinalizedBlock)

@@ -4,10 +4,7 @@ type (
 	QueryParams map[string]string
 
 	HTTPOptions struct {
-		Endpoint    string
-		Method      string
-		Body        Payload
-		QueryParams QueryParams
+		Endpoint string
 	}
 
 	Payload struct {
