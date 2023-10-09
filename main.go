@@ -1,5 +1,3 @@
-//------ two metrics below.........
-
 package main
 
 import (
@@ -16,30 +14,31 @@ import (
 )
 
 const (
-	apiEndpoint = "http://64.227.177.52:8080/node/version"
-	metricsPort = 9090 // Port for Prometheus to scrape metrics
+	apiEndpoint = "http://64.227.177.52:8080"
+	metricsPort = 9000
 )
 
 var (
-	nodeVersion = prometheus.NewGauge( //slots.go
+	nodeVersion = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "node_version",
-			Help: "node Version",
+			Help: "Node Version Information",
 		},
+		[]string{"version"},
 	)
-)
-
-var (
-	chainName = prometheus.NewGauge( //slots.go
+	chainName = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "chain",
-			Help: "name of the chain",
+			Help: "Name of the chain",
 		},
+		[]string{"chain"},
 	)
 )
 
 func fetchDataAndSetMetric() {
-	resp, err := http.Get(apiEndpoint)
+	endpoint := apiEndpoint + "/node/version"
+	fmt.Printf("apiEndpoint: %v\n", endpoint)
+	resp, err := http.Get(endpoint)
 	if err != nil {
 		fmt.Println("Failed to fetch data:", err)
 		return
@@ -75,25 +74,20 @@ func fetchDataAndSetMetric() {
 		return
 	}
 
-	chainName.Set(1) // Set it to 1 or any value you prefer
+	nodeVersion.WithLabelValues(version).Set(1.0) // Use a constant value (1) for the metric
+	chainName.WithLabelValues(chain).Set(1)
 	fmt.Printf("chain: %s\n", chain)
 	fmt.Printf("Node Version: %s\n", version)
 }
 
 func main() {
-
 	version, err := os.ReadFile("config.toml")
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for {
-		fetchDataAndSetMetric()
-		time.Sleep(25 * time.Second)
-	}
-	fmt.Println(string(version))
-	prometheus.MustRegister(nodeVersion) //slots.go file
+	prometheus.MustRegister(nodeVersion)
+	prometheus.MustRegister(chainName)
 
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
@@ -101,4 +95,12 @@ func main() {
 		http.ListenAndServe(fmt.Sprintf(":%d", metricsPort), nil)
 	}()
 
+	for {
+		fetchDataAndSetMetric()
+		time.Sleep(25 * time.Second)
+	}
+
+	fmt.Println(string(version))
 }
+
+//----------------------------------
