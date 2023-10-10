@@ -13,12 +13,29 @@ import (
 )
 
 const (
-	apiEndpoint = "http://64.227.177.52:8080"
-	metricsPort = 9000
+	apiEndpoint  = "http://64.227.177.52:8080"
+	metricsPort  = 9000
+	timeInterval = 25 * time.Second
 )
 
-type FinalizedBlock struct {
+type CurrentSlot struct {
 	Value string `json:"value"`
+}
+
+type EpochIndex struct {
+	Value string `json:"value"`
+}
+
+type TimeStamp struct {
+	Now string `json:"now"`
+}
+
+type BestBlock struct {
+	Number string `json:"number"`
+}
+
+type FinalizedBlock struct {
+	Hash string `json:"hash"`
 }
 
 var (
@@ -36,11 +53,35 @@ var (
 		},
 		[]string{"chain"},
 	)
-	finalizedBlock = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	currentSlot = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "current_slot_value",
 		Help: "current slot value of avail",
 	},
 		[]string{"value"},
+	)
+	epochIndex = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "current_epoch_number",
+		Help: "current epoch number of avail",
+	},
+		[]string{"value"},
+	)
+	timeStamp = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "timestamp_of_latest_block",
+		Help: "timestamp of latest block",
+	},
+		[]string{"now"},
+	)
+	bestBlock = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "latest_best_block",
+		Help: "latest best block",
+	},
+		[]string{"number"},
+	)
+	finalizedBlock = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "finalized_block",
+		Help: "finalized block of the network",
+	},
+		[]string{"hash"},
 	)
 )
 
@@ -94,9 +135,9 @@ func fetchDataAndSetMetric() {
 	fmt.Printf("Node Version: %s\n", version)
 }
 
-func fetchFinalizedBlock() {
+func fetchCurrentSlot() {
 	finalendpoint := apiEndpoint + "/pallets/babe/storage/currentSlot"
-	fmt.Printf("finalizedBlock: %v\n", finalendpoint)
+	fmt.Printf("currentSlot: %v\n", finalendpoint)
 	resp, err := http.Get(finalendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch finalied block", err)
@@ -109,7 +150,7 @@ func fetchFinalizedBlock() {
 		return
 	}
 
-	var response FinalizedBlock
+	var response CurrentSlot
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -119,12 +160,137 @@ func fetchFinalizedBlock() {
 
 	v, _ := strconv.ParseFloat(value, 64)
 	fmt.Println("value here....", v)
-	finalizedBlock.WithLabelValues(value).Set(v)
+	currentSlot.WithLabelValues(value).Set(v)
 	fmt.Printf("Finalized Block Value: %s\n", value)
 
 }
 
+func fetchEpochIndex() {
+	epochendpoint := apiEndpoint + "/pallets/babe/storage/epochIndex"
+	fmt.Printf("epochindex enddpoint: %v\n", epochendpoint)
+	resp, err := http.Get(epochendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch epoch index", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch index code %d\n", resp.StatusCode)
+		return
+	}
+
+	var response EpochIndex
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	value := response.Value
+	e, _ := strconv.ParseFloat(value, 64)
+	epochIndex.WithLabelValues(value).Set(e)
+	fmt.Printf("epoch index value: %s\n", value)
+
+}
+
+func fetchTimeStamp() {
+	tsendpoint := apiEndpoint + "/blocks/head"
+	resp, err := http.Get(tsendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch epoch timestamp", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch index code %d\n", resp.StatusCode)
+		return
+	}
+
+	var response TimeStamp
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	epochtime := response.Now
+
+	ts, err := strconv.ParseInt(epochtime, 10, 64)
+	if err != nil {
+		fmt.Println("Error parsing epoch value:", err)
+		return
+	}
+
+	t := time.Unix(ts/1000, 0) // Convert milliseconds to seconds
+	loc, err := time.LoadLocation("GMT")
+	if err != nil {
+		fmt.Println("Error loading timezone:", err)
+		return
+	}
+	t = t.In(loc)
+	formattedTime := t.Format("Monday, January 02, 2006 3:04:05 PM MST")
+
+	// Export the converted timestamp to Prometheus
+	timeStamp.WithLabelValues(epochtime).Set(float64(ts) / 1000) // Export as seconds
+
+	fmt.Printf("Fetched timestamp: %s (%d GMT)\n", formattedTime, ts)
+}
+
+func fetchBestBlock() {
+	blockendpoint := apiEndpoint + "/blocks/head"
+	fmt.Printf("epochindex enddpoint: %v\n", blockendpoint)
+	resp, err := http.Get(blockendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch epoch index", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch index code %d\n", resp.StatusCode)
+		return
+	}
+
+	var response BestBlock
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	block := response.Number
+	b, _ := strconv.ParseFloat(block, 64)
+	bestBlock.WithLabelValues(block).Set(b)
+
+}
+
+func fetchFinalizedBlock() {
+	finalizedendpoint := apiEndpoint + "/blocks/head"
+	resp, err := http.Get(finalizedendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch epoch index", err)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch index code %d\n", resp.StatusCode)
+		return
+	}
+
+	var response FinalizedBlock
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	finalizedblock := response.Hash
+	h, _ := strconv.ParseFloat(finalizedblock, 64)
+	finalizedBlock.WithLabelValues(finalizedblock).Set(h)
+
+}
+
 func main() {
+	ticker := time.NewTicker(timeInterval)
+
 	// version, err := os.ReadFile("config.toml")
 	// if err != nil {
 	// 	log.Fatal(err)
@@ -132,6 +298,10 @@ func main() {
 
 	prometheus.MustRegister(nodeVersion)
 	prometheus.MustRegister(chainName)
+	prometheus.MustRegister(currentSlot)
+	prometheus.MustRegister(epochIndex)
+	prometheus.MustRegister(timeStamp)
+	prometheus.MustRegister(bestBlock)
 	prometheus.MustRegister(finalizedBlock)
 
 	go func() {
@@ -141,9 +311,14 @@ func main() {
 	}()
 
 	for {
+		<-ticker.C
 		fetchDataAndSetMetric()
+		fetchCurrentSlot()
+		fetchEpochIndex()
+		fetchTimeStamp()
+		fetchBestBlock()
 		fetchFinalizedBlock()
-		time.Sleep(25 * time.Second)
+		time.Sleep(timeInterval)
 	}
 
 	// fmt.Println(string(version))
