@@ -145,7 +145,7 @@ func fetchDataAndSetMetric() {
 	// n, err := strconv.ParseFloat(version, 64)
 	// fmt.Println("errrr......", err, n)
 
-	nodeVersion.WithLabelValues(version).Desc().String()
+	nodeVersion.WithLabelValues(version).Set(1)
 
 	// nodeVersion.WithLabelValues(version).Set(n) // Use a constant value (1) for the metric
 	chainName.WithLabelValues(chain).Set(1)
