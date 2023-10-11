@@ -65,17 +65,15 @@ var (
 		},
 		[]string{"chain"},
 	)
-	currentSlot = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	currentSlot = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "current_slot_value",
 		Help: "current slot value of avail",
 	},
-		[]string{"value"},
 	)
-	epochIndex = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	epochIndex = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "current_epoch_number",
 		Help: "current epoch number of avail",
 	},
-		[]string{"value"},
 	)
 	timeStamp = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "timestamp_of_latest_block",
@@ -83,29 +81,25 @@ var (
 	},
 		[]string{"now"},
 	)
-	bestBlock = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	bestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "latest_best_block",
 		Help: "latest best block",
 	},
-		[]string{"number"},
 	)
-	finalizedBlock = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	finalizedBlock = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "finalized_block",
 		Help: "finalized block of the network",
 	},
-		[]string{"hash"},
 	)
-	epochstartTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	epochstartTime = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "epoch_start_time",
 		Help: "epoch start time of network",
 	},
-		[]string{"value"},
 	)
-	epochendTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	epochendTime = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "epoch_end_time",
 		Help: "epoch end time of network",
 	},
-		[]string{"value"},
 	)
 )
 
@@ -184,7 +178,7 @@ func fetchCurrentSlot() {
 
 	v, _ := strconv.ParseFloat(value, 64)
 	fmt.Println("value here....", v)
-	currentSlot.WithLabelValues(value).Set(v)
+	currentSlot.Set(v)
 	fmt.Printf("Finalized Block Value: %s\n", value)
 
 }
@@ -212,7 +206,7 @@ func fetchEpochIndex() {
 
 	value := response.Value
 	e, _ := strconv.ParseFloat(value, 64)
-	epochIndex.WithLabelValues(value).Set(e)
+	epochIndex.Set(e)
 	fmt.Printf("epoch index value: %s\n", value)
 
 }
@@ -290,8 +284,7 @@ func fetchBestBlock() {
 
 	block := response.Number
 	b, _ := strconv.ParseFloat(block, 64)
-	bestBlock.WithLabelValues(block).Set(b)
-
+	bestBlock.Set(b)
 }
 
 func fetchFinalizedBlock() {
@@ -315,7 +308,7 @@ func fetchFinalizedBlock() {
 
 	finalizedblock := response.Hash
 	h, _ := strconv.ParseFloat(finalizedblock, 64)
-	finalizedBlock.WithLabelValues(finalizedblock).Set(h)
+	finalizedBlock.Set(h)
 
 }
 
@@ -343,7 +336,7 @@ func fetchEpochStartTime() {
 	startTime := response.Value[0]
 	fmt.Println(startTime)
 	st, _ := strconv.ParseFloat(startTime, 64)
-	epochstartTime.WithLabelValues(startTime).Set(st)
+	epochstartTime.Set(st)
 
 }
 
@@ -371,7 +364,7 @@ func fetchEpochEndTime() {
 	endTime := response.Value[1]
 	fmt.Println(endTime)
 	et, _ := strconv.ParseFloat(endTime, 64)
-	epochstartTime.WithLabelValues(endTime).Set(et)
+	epochendTime.Set(et)
 
 }
 
