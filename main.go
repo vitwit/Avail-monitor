@@ -27,7 +27,11 @@ type EpochIndex struct {
 }
 
 type TimeStamp struct {
-	Now string `json:"now"`
+	Extrinsics []struct {
+		Args struct {
+			Now string `json:"now"`
+		} `json:"args"`
+	} `json:"extrinsics"`
 }
 
 type BestBlock struct {
@@ -36,6 +40,14 @@ type BestBlock struct {
 
 type FinalizedBlock struct {
 	Hash string `json:"hash"`
+}
+
+type EpochStartTime struct {
+	Value []string `json:"value"`
+}
+
+type EpochEndTime struct {
+	Value []string `json:"value"`
 }
 
 var (
@@ -82,6 +94,18 @@ var (
 		Help: "finalized block of the network",
 	},
 		[]string{"hash"},
+	)
+	epochstartTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "epoch_start_time",
+		Help: "epoch start time of network",
+	},
+		[]string{"value"},
+	)
+	epochendTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "epoch_end_time",
+		Help: "epoch end time of network",
+	},
+		[]string{"value"},
 	)
 )
 
@@ -213,7 +237,14 @@ func fetchTimeStamp() {
 		return
 	}
 
-	epochtime := response.Now
+	fmt.Printf("response: %v\n", response)
+
+	fmt.Printf("response.Extrinsics: %v\n", response.Extrinsics)
+
+	fmt.Printf("response.Extrinsics[0].Args.Now: %v\n", response.Extrinsics[0].Args.Now)
+
+	epochtime := response.Extrinsics[0].Args.Now
+	fmt.Printf("epochtime: %v\n", epochtime)
 
 	ts, err := strconv.ParseInt(epochtime, 10, 64)
 	if err != nil {
@@ -231,7 +262,7 @@ func fetchTimeStamp() {
 	formattedTime := t.Format("Monday, January 02, 2006 3:04:05 PM MST")
 
 	// Export the converted timestamp to Prometheus
-	timeStamp.WithLabelValues(epochtime).Set(float64(ts) / 1000) // Export as seconds
+	timeStamp.WithLabelValues(formattedTime).Set(1) // Export as seconds
 
 	fmt.Printf("Fetched timestamp: %s (%d GMT)\n", formattedTime, ts)
 }
@@ -288,8 +319,64 @@ func fetchFinalizedBlock() {
 
 }
 
+func fetchEpochStartTime() {
+	startendpoint := apiEndpoint + "/pallets/babe/storage/epochStart"
+	fmt.Printf("epoch start time: %v\n", startendpoint)
+	resp, err := http.Get(startendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch epoch start time", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch start time code %d\n", resp.StatusCode)
+		return
+	}
+
+	var response EpochStartTime
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	startTime := response.Value[0]
+	fmt.Println(startTime)
+	st, _ := strconv.ParseFloat(startTime, 64)
+	epochstartTime.WithLabelValues(startTime).Set(st)
+
+}
+
+func fetchEpochEndTime() {
+	epochendpoint := apiEndpoint + "/pallets/babe/storage/epochStart"
+	fmt.Printf("epoch end time: %v\n", epochendpoint)
+	resp, err := http.Get(epochendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch epoch end time", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch end time code %d\n", resp.StatusCode)
+		return
+	}
+
+	var response EpochEndTime
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	endTime := response.Value[1]
+	fmt.Println(endTime)
+	et, _ := strconv.ParseFloat(endTime, 64)
+	epochstartTime.WithLabelValues(endTime).Set(et)
+
+}
+
 func main() {
-	ticker := time.NewTicker(timeInterval)
+	ticker := time.NewTicker(1 * time.Second)
 
 	// version, err := os.ReadFile("config.toml")
 	// if err != nil {
@@ -303,6 +390,8 @@ func main() {
 	prometheus.MustRegister(timeStamp)
 	prometheus.MustRegister(bestBlock)
 	prometheus.MustRegister(finalizedBlock)
+	prometheus.MustRegister(epochstartTime)
+	prometheus.MustRegister(epochendTime)
 
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
@@ -318,6 +407,8 @@ func main() {
 		fetchTimeStamp()
 		fetchBestBlock()
 		fetchFinalizedBlock()
+		fetchEpochStartTime()
+		fetchEpochEndTime()
 		time.Sleep(timeInterval)
 	}
 
