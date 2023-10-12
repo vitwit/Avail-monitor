@@ -54,6 +54,34 @@ type TotalTokensIssued struct {
 	Value string `json:"value"`
 }
 
+type NominationPool struct {
+	Value string `json:"value"`
+}
+
+type CurrentEra struct {
+	Value string `json:"value"`
+}
+
+type ProposalCount struct {
+	Value string `json:"value"`
+}
+
+type ReferendumCount struct {
+	Value string `json:"value"`
+}
+
+type PublicProposalCount struct {
+	Value string `json:"value"`
+}
+
+type BountyProposalCount struct {
+	Value string `json:"value"`
+}
+
+type CouncilMembers struct {
+	Value string `json:"value"`
+}
+
 var (
 	nodeVersion = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -108,6 +136,34 @@ var (
 	totaltokensIssued = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "total_tokens_issued",
 		Help: "total tokens issued on network",
+	})
+	nominationPool = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "nomination_pool",
+		Help: "number of nomination pools",
+	})
+	currentEra = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "current_era_value",
+		Help: "current era",
+	})
+	proposalCount = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "proposal_count_value",
+		Help: "total proposal count value",
+	})
+	referendumCount = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "referendum_count_value",
+		Help: "total referendum count value",
+	})
+	publicProposalCount = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "public_proposal_count_value",
+		Help: "total public proposal count value",
+	})
+	bountyProposalCount = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "bounty_proposal_count_value",
+		Help: "total bounty proposal count value",
+	})
+	councilMembers = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "council_member_value",
+		Help: "total council member value",
 	})
 )
 
@@ -376,7 +432,212 @@ func fetchEpochEndTime() {
 
 }
 
-func fetchTotalTokensIssued() {}
+func fetchTotalTokensIssued() {
+	tokenendpoint := apiEndpoint + "/pallets/balances/storage/totalIssuance"
+	resp, err := http.Get(tokenendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch total token issuance", err)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch total token issuance code %d\n", resp.StatusCode)
+		return
+	}
+
+	var response TotalTokensIssued
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	totalTokens := response.Value
+	tt, _ := strconv.ParseFloat(totalTokens, 64)
+	ttI := tt / 1e18 //wrong conversion.. consider later..
+	totaltokensIssued.Set(ttI)
+
+}
+
+func fetchNominationPool() {
+	poolendpoint := apiEndpoint + "/pallets/nominationPools/storage/counterForBondedPools"
+	fmt.Printf("epochindex enddpoint: %v\n", poolendpoint)
+	resp, err := http.Get(poolendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch nomination pools", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch number of nomination pools %d\n", resp.StatusCode)
+		return
+	}
+
+	var response NominationPool
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	nominationpool := response.Value
+	np, _ := strconv.ParseFloat(nominationpool, 64)
+	nominationPool.Set(np)
+
+}
+
+func fetchCurrentEra() {
+	eraendpoint := apiEndpoint + "/pallets/staking/storage/currentEra"
+	fmt.Printf("currentSlot: %v\n", eraendpoint)
+	resp, err := http.Get(eraendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch current era value", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch current era value %d\n", resp.StatusCode)
+		return
+	}
+
+	var response CurrentEra
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+	value := response.Value
+	e, _ := strconv.ParseFloat(value, 64)
+	currentEra.Set(e)
+}
+
+func fetchProposalCount() {
+	pcendpoint := apiEndpoint + "/pallets/council/storage/proposalCount"
+	fmt.Printf("currentSlot: %v\n", pcendpoint)
+	resp, err := http.Get(pcendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch proposal count", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch proposal count %d\n", resp.StatusCode)
+		return
+	}
+
+	var response ProposalCount
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	value := response.Value
+	pc, _ := strconv.ParseFloat(value, 64)
+	proposalCount.Set(pc)
+
+}
+
+func fetchReferendumCount() {
+	rcendpoint := apiEndpoint + "/pallets/democracy/storage/referendumCount"
+	resp, err := http.Get(rcendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch referendum count", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch referendum count %d\n", resp.StatusCode)
+		return
+	}
+
+	var response ReferendumCount
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	referendumCount := response.Value
+	rc, _ := strconv.ParseFloat(referendumCount, 64)
+	nominationPool.Set(rc)
+}
+
+func fetchPublicProposalCount() {
+	ppcendpoint := apiEndpoint + "/pallets/democracy/storage/publicPropCount"
+	resp, err := http.Get(ppcendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch public proposal count", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch public proposal count%d\n", resp.StatusCode)
+		return
+	}
+
+	var response PublicProposalCount
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	publicProposalCount := response.Value
+	ppc, _ := strconv.ParseFloat(publicProposalCount, 64)
+	nominationPool.Set(ppc)
+}
+
+func fetchBountyProposalCount() {
+	bpcendpoint := apiEndpoint + "/pallets/bounties/storage/bountyCount"
+	resp, err := http.Get(bpcendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch bounty proposal count value", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch bounty proposal count value %d\n", resp.StatusCode)
+		return
+	}
+
+	var response BountyProposalCount
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	bountyProposalCount := response.Value
+	bpc, _ := strconv.ParseFloat(bountyProposalCount, 64)
+	nominationPool.Set(bpc)
+}
+
+func fetchCouncilMember() {
+	cmendpoint := apiEndpoint + "/pallets/council/storage/members"
+	resp, err := http.Get(cmendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch nomination pools", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch epoch number of nomination pools %d\n", resp.StatusCode)
+		return
+	}
+
+	var response CouncilMembers
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	councilMembers := response.Value
+	cm, _ := strconv.ParseFloat(councilMembers, 64)
+	fmt.Printf("!!!!!!!!!!!!!!!! %v\n", cm)
+	nominationPool.Set(cm)
+
+}
 
 func main() {
 	ticker := time.NewTicker(1 * time.Second)
@@ -395,6 +656,14 @@ func main() {
 	prometheus.MustRegister(finalizedBlock)
 	prometheus.MustRegister(epochstartTime)
 	prometheus.MustRegister(epochendTime)
+	prometheus.MustRegister(totaltokensIssued)
+	prometheus.MustRegister(nominationPool)
+	prometheus.MustRegister(currentEra)
+	prometheus.MustRegister(proposalCount)
+	prometheus.MustRegister(referendumCount)
+	prometheus.MustRegister(publicProposalCount)
+	prometheus.MustRegister(bountyProposalCount)
+	prometheus.MustRegister(councilMembers)
 
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
@@ -412,6 +681,14 @@ func main() {
 		fetchFinalizedBlock()
 		fetchEpochStartTime()
 		fetchEpochEndTime()
+		fetchTotalTokensIssued()
+		fetchNominationPool()
+		fetchCurrentEra()
+		fetchProposalCount()
+		fetchReferendumCount()
+		fetchPublicProposalCount()
+		fetchBountyProposalCount()
+		fetchCouncilMember()
 		time.Sleep(timeInterval)
 	}
 
