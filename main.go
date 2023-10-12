@@ -50,6 +50,10 @@ type EpochEndTime struct {
 	Value []string `json:"value"`
 }
 
+type TotalTokensIssued struct {
+	Value string `json:"value"`
+}
+
 var (
 	nodeVersion = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -75,11 +79,11 @@ var (
 		Help: "current epoch number of avail",
 	},
 	)
-	timeStamp = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	timeStamp = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "timestamp_of_latest_block",
 		Help: "timestamp of latest block",
 	},
-		[]string{"now"},
+	// []string{"now"},
 	)
 	bestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "latest_best_block",
@@ -101,6 +105,10 @@ var (
 		Help: "epoch end time of network",
 	},
 	)
+	totaltokensIssued = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "total_tokens_issued",
+		Help: "total tokens issued on network",
+	})
 )
 
 func fetchDataAndSetMetric() {
@@ -231,34 +239,34 @@ func fetchTimeStamp() {
 		return
 	}
 
-	fmt.Printf("response: %v\n", response)
+	// fmt.Printf("response: %v\n", response)
 
-	fmt.Printf("response.Extrinsics: %v\n", response.Extrinsics)
+	// fmt.Printf("response.Extrinsics: %v\n", response.Extrinsics)
 
-	fmt.Printf("response.Extrinsics[0].Args.Now: %v\n", response.Extrinsics[0].Args.Now)
+	// fmt.Printf("response.Extrinsics[0].Args.Now: %v\n", response.Extrinsics[0].Args.Now)
 
 	epochtime := response.Extrinsics[0].Args.Now
 	fmt.Printf("epochtime: %v\n", epochtime)
 
-	ts, err := strconv.ParseInt(epochtime, 10, 64)
-	if err != nil {
-		fmt.Println("Error parsing epoch value:", err)
-		return
-	}
+	// ts, err := strconv.ParseInt(epochtime, 10, 64)
+	// if err != nil {
+	// 	fmt.Println("Error parsing epoch value:", err)
+	// 	return
+	// }
 
-	t := time.Unix(ts/1000, 0) // Convert milliseconds to seconds
-	loc, err := time.LoadLocation("GMT")
-	if err != nil {
-		fmt.Println("Error loading timezone:", err)
-		return
-	}
-	t = t.In(loc)
-	formattedTime := t.Format("Monday, January 02, 2006 3:04:05 PM MST")
-
+	// t := time.Unix(ts/1000, 0) // Convert milliseconds to seconds
+	// loc, err := time.LoadLocation("GMT")
+	// if err != nil {
+	// 	fmt.Println("Error loading timezone:", err)
+	// 	return
+	// }
+	// t = t.In(loc)
+	// formattedTime := t.Format("Monday, January 02, 2006 3:04:05 PM MST")
+	ts, _ := strconv.ParseFloat(epochtime, 64)
 	// Export the converted timestamp to Prometheus
-	timeStamp.WithLabelValues(formattedTime).Set(1) // Export as seconds
+	timeStamp.Set(ts) // Export as seconds
 
-	fmt.Printf("Fetched timestamp: %s (%d GMT)\n", formattedTime, ts)
+	fmt.Printf("Fetched timestamp: %s\n", epochtime)
 }
 
 func fetchBestBlock() {
@@ -367,6 +375,8 @@ func fetchEpochEndTime() {
 	epochendTime.Set(et)
 
 }
+
+func fetchTotalTokensIssued() {}
 
 func main() {
 	ticker := time.NewTicker(1 * time.Second)
