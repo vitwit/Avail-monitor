@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/vitwit/avail-monitor/types"
 )
 
 const (
@@ -17,70 +19,6 @@ const (
 	metricsPort  = 9000
 	timeInterval = 25 * time.Second
 )
-
-type CurrentSlot struct {
-	Value string `json:"value"`
-}
-
-type EpochIndex struct {
-	Value string `json:"value"`
-}
-
-type TimeStamp struct {
-	Extrinsics []struct {
-		Args struct {
-			Now string `json:"now"`
-		} `json:"args"`
-	} `json:"extrinsics"`
-}
-
-type BestBlock struct {
-	Number string `json:"number"`
-}
-
-type FinalizedBlock struct {
-	Hash string `json:"hash"`
-}
-
-type EpochStartTime struct {
-	Value []string `json:"value"`
-}
-
-type EpochEndTime struct {
-	Value []string `json:"value"`
-}
-
-type TotalTokensIssued struct {
-	Value string `json:"value"`
-}
-
-type NominationPool struct {
-	Value string `json:"value"`
-}
-
-type CurrentEra struct {
-	Value string `json:"value"`
-}
-
-type ProposalCount struct {
-	Value string `json:"value"`
-}
-
-type ReferendumCount struct {
-	Value string `json:"value"`
-}
-
-type PublicProposalCount struct {
-	Value string `json:"value"`
-}
-
-type BountyProposalCount struct {
-	Value string `json:"value"`
-}
-
-type CouncilMembers struct {
-	Value []string `json:"value"`
-}
 
 var (
 	nodeVersion = prometheus.NewGaugeVec(
@@ -133,10 +71,10 @@ var (
 		Help: "epoch end time of network",
 	},
 	)
-	totaltokensIssued = prometheus.NewGauge(prometheus.GaugeOpts{
+	totaltokensIssued = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "total_tokens_issued",
 		Help: "total tokens issued on network",
-	})
+	}, []string{"value"})
 	nominationPool = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "nomination_pool",
 		Help: "number of nomination pools",
@@ -145,6 +83,10 @@ var (
 		Name: "current_era_value",
 		Help: "current era",
 	})
+	boundedToken = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "total_bounded_token_value",
+		Help: "bounded token value",
+	}, []string{"value"})
 	proposalCount = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "proposal_count_value",
 		Help: "total proposal count value",
@@ -161,10 +103,14 @@ var (
 		Name: "bounty_proposal_count_value",
 		Help: "total bounty proposal count value",
 	})
-	councilMember = prometheus.NewGauge(prometheus.GaugeOpts{
+	councilMember = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "council_member_value",
 		Help: "total council member value",
-	})
+	}, []string{"value"})
+	electedMember = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "current_elected_member",
+		Help: "current elected member value",
+	}, []string{"value"})
 )
 
 func fetchDataAndSetMetric() {
@@ -227,7 +173,7 @@ func fetchCurrentSlot() {
 		return
 	}
 
-	var response CurrentSlot
+	var response types.CurrentSlot
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -238,7 +184,7 @@ func fetchCurrentSlot() {
 	v, _ := strconv.ParseFloat(value, 64)
 	fmt.Println("value here....", v)
 	currentSlot.Set(v)
-	fmt.Printf("Finalized Block Value: %s\n", value)
+	fmt.Printf("current slot Value: %s\n", value)
 
 }
 
@@ -257,7 +203,7 @@ func fetchEpochIndex() {
 		return
 	}
 
-	var response EpochIndex
+	var response types.EpochIndex
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -284,7 +230,7 @@ func fetchTimeStamp() {
 		return
 	}
 
-	var response TimeStamp
+	var response types.TimeStamp
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -312,7 +258,7 @@ func fetchBestBlock() {
 		return
 	}
 
-	var response BestBlock
+	var response types.BestBlock
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -336,7 +282,7 @@ func fetchFinalizedBlock() {
 		return
 	}
 
-	var response FinalizedBlock
+	var response types.FinalizedBlock
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -344,6 +290,7 @@ func fetchFinalizedBlock() {
 
 	finalizedblock := response.Hash
 	h, _ := strconv.ParseFloat(finalizedblock, 64)
+	fmt.Printf("finalized block ***********%v\n", h)
 	finalizedBlock.Set(h)
 
 }
@@ -363,7 +310,7 @@ func fetchEpochStartTime() {
 		return
 	}
 
-	var response EpochStartTime
+	var response types.EpochStartTime
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -391,7 +338,7 @@ func fetchEpochEndTime() {
 		return
 	}
 
-	var response EpochEndTime
+	var response types.EpochEndTime
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -417,7 +364,7 @@ func fetchTotalTokensIssued() {
 		return
 	}
 
-	var response TotalTokensIssued
+	var response types.TotalTokensIssued
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -425,8 +372,12 @@ func fetchTotalTokensIssued() {
 
 	totalTokens := response.Value
 	tt, _ := strconv.ParseFloat(totalTokens, 64)
-	ttI := tt / 1e18 //wrong conversion.. consider later..
-	totaltokensIssued.Set(ttI)
+	abcd := math.Floor(tt / math.Pow(10, 18))
+	fmt.Printf("abcd: %v\n", abcd)
+
+	// ttI := tt / 1e18 //wrong conversion.. consider later..
+	//totaltokensIssued.Set(abcd)
+	totaltokensIssued.WithLabelValues(fmt.Sprintf("%.11e", abcd)).Set(1)
 
 }
 
@@ -445,7 +396,7 @@ func fetchNominationPool() {
 		return
 	}
 
-	var response NominationPool
+	var response types.NominationPool
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -473,7 +424,7 @@ func fetchCurrentEra() {
 		return
 	}
 
-	var response CurrentEra
+	var response types.CurrentEra
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -481,6 +432,38 @@ func fetchCurrentEra() {
 	value := response.Value
 	e, _ := strconv.ParseFloat(value, 64)
 	currentEra.Set(e)
+
+	//***** bounded-tokens
+	btendpoint := apiEndpoint + "/pallets/staking/storage/erasTotalStake?keys[]=" + response.Value
+	fmt.Println("bounded token endpoint:", btendpoint)
+	res, err := http.Get(btendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch bounded token value", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch current bounded token code %d\n", resp.StatusCode)
+		return
+	}
+
+	var result types.BoundedTokens
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		fmt.Println("Failed to unmarshal bounded token JSON:", err)
+		return
+	}
+	bounded := result.Value
+	fmt.Printf("bounded: %v\n", bounded)
+	z, err := strconv.ParseFloat(bounded, 64)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+	}
+	fmt.Printf("z: %v\n", z)
+	m := math.Floor(z / math.Pow(10, 18))
+
+	boundedToken.WithLabelValues(fmt.Sprintf("%.11e", m)).Set(1.0)
+
 }
 
 func fetchProposalCount() {
@@ -498,7 +481,7 @@ func fetchProposalCount() {
 		return
 	}
 
-	var response ProposalCount
+	var response types.ProposalCount
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -524,7 +507,7 @@ func fetchReferendumCount() {
 		return
 	}
 
-	var response ReferendumCount
+	var response types.ReferendumCount
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -549,7 +532,7 @@ func fetchPublicProposalCount() {
 		return
 	}
 
-	var response PublicProposalCount
+	var response types.PublicProposalCount
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -574,7 +557,7 @@ func fetchBountyProposalCount() {
 		return
 	}
 
-	var response BountyProposalCount
+	var response types.BountyProposalCount
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
@@ -599,18 +582,49 @@ func fetchCouncilMember() {
 		return
 	}
 
-	var response CouncilMembers
+	var response types.CouncilMembers
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
 	}
 
 	councilmem := response.Value[0]
-	fmt.Println(councilmem)
-	cm, _ := strconv.ParseFloat(councilmem, 32)
-	fmt.Printf("cm prom metric-------- %v\n", cm)
-	councilMember.Set(cm)
+	// fmt.Println(councilmem)
+	// cm, _ := strconv.ParseFloat(councilmem, 32)
+	// fmt.Printf("cm prom metric-------- %v\n", cm)
+	councilMember.WithLabelValues(councilmem).Set(1)
 
+}
+
+func fetchElectedMember() {
+	cemendpoint := apiEndpoint + "/pallets/elections/storage/members"
+	resp, err := http.Get(cemendpoint)
+	if err != nil {
+		fmt.Println("failed to fetch current elected member", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch current elected member code %d\n", resp.StatusCode)
+		return
+	}
+
+	var response types.ElectedMembers
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return
+	}
+
+	elecmem := response.Value[0].Who
+	fmt.Printf("elecmem: %v\n", elecmem)
+	// fmt.Println("-----------------------------------------------------------------------------------------------------------------------------------------", elecmem)
+	// cem, err := strconv.ParseFloat(elecmem, 64)
+	// if err != nil {
+	// 	fmt.Printf("err: %v\n", err)
+	// }
+	// fmt.Println("current elected member value------------------------------------------->", cem)
+	electedMember.WithLabelValues(elecmem).Set(1)
 }
 
 func main() {
@@ -638,6 +652,8 @@ func main() {
 	prometheus.MustRegister(publicProposalCount)
 	prometheus.MustRegister(bountyProposalCount)
 	prometheus.MustRegister(councilMember)
+	prometheus.MustRegister(electedMember)
+	prometheus.MustRegister(boundedToken)
 
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
@@ -663,6 +679,7 @@ func main() {
 		fetchPublicProposalCount()
 		fetchBountyProposalCount()
 		fetchCouncilMember()
+		fetchElectedMember()
 		time.Sleep(timeInterval)
 	}
 }
