@@ -2,10 +2,20 @@ package config
 
 import "github.com/spf13/viper"
 
-type Config struct {
-	URLEndpoint       string `mapstructure:"url_endpoint"`
+type Prometheus struct {
+	// ListenAddress to export metrics on the given port
+	ListenAddress string `mapstructure:"listen_address"`
+	// PrometheusAddress to connect to prormetheus where it has running
 	PrometheusAddress string `mapstructure:"prometheus_address"`
-	ListenAddress     string `mapstructure:"listen_address"`
+}
+
+type Endpoints struct {
+	URLEndpoint string `mapstructure:"url_endpoint"`
+}
+
+type Config struct {
+	URLEndpoint string     `mapstructure:"url_endpoint"`
+	Prometheus  Prometheus `mapstructure:"prometheus"`
 }
 
 func ReadConfig(path string) (config Config, err error) {

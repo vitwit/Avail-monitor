@@ -3,36 +3,33 @@ package exporter
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/vitwit/avail-monitor/config"
-	//"github.com/vitwit/avail-monitor/types"
+	"github.com/vitwit/avail-monitor/monitor"
 )
 
-type availMetric struct {
-	config        *config.Config
-	clientVersion *prometheus.Desc
+type availCollector struct {
+	config      *config.Config
+	nodeVersion *prometheus.Desc
 }
 
-func NewAvailMetric(cfg *config.Config) *availMetric {
-	return &availMetric{
+func NewAvailCollector(cfg *config.Config) *availCollector {
+	return &availCollector{
 		config: cfg,
-		clientVersion: prometheus.NewDesc(
-			"avail_node_version",
-			"node version of avail",
-			[]string{"avail_node_version"}, nil),
+		nodeVersion: prometheus.NewDesc(
+			"node_version",
+			"Node Version Information",
+			[]string{"version"}, nil),
 	}
 }
 
-func (c *availMetric) Describe(ch chan<- *prometheus.Desc) {
-	ch <- c.clientVersion
+func (c *availCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- c.nodeVersion
 }
 
-// func (c *availMetric) Collect(ch chan<- prometheus.Metric) {
-// 	// fmt.Printf("\"versio\": %v\n", "version")
-// 	version, err := monitor.GetVersion(c.config)
-// 	// fmt.Printf("version: %v\n", version)
-// 	if version.Result.ClientVersion != "" {
-// 		ch <- prometheus.MustNewConstMetric(c.clientVersion, prometheus.GaugeValue, 1, version.Result.ClientVersion)
-// 	}
-// 	if err != nil {
-// 		log.Printf("failed to fetch version %s", err)
-// 	}
-// }
+func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
+	version, _, err := monitor.FetchDataAndSetMetric(c.config)
+	if err != nil {
+		ch <- prometheus.NewInvalidMetric(c.nodeVersion, err)
+	} else {
+		ch <- prometheus.MustNewConstMetric(c.nodeVersion, prometheus.GaugeValue, 1, version)
+	}
+}
