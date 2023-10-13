@@ -79,7 +79,7 @@ type BountyProposalCount struct {
 }
 
 type CouncilMembers struct {
-	Value string `json:"value"`
+	Value []string `json:"value"`
 }
 
 var (
@@ -161,7 +161,7 @@ var (
 		Name: "bounty_proposal_count_value",
 		Help: "total bounty proposal count value",
 	})
-	councilMembers = prometheus.NewGauge(prometheus.GaugeOpts{
+	councilMember = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "council_member_value",
 		Help: "total council member value",
 	})
@@ -206,12 +206,7 @@ func fetchDataAndSetMetric() {
 		return
 	}
 
-	// n, err := strconv.ParseFloat(version, 64)
-	// fmt.Println("errrr......", err, n)
-
 	nodeVersion.WithLabelValues(version).Set(1)
-
-	// nodeVersion.WithLabelValues(version).Set(n) // Use a constant value (1) for the metric
 	chainName.WithLabelValues(chain).Set(1)
 	fmt.Printf("chain: %s\n", chain)
 	fmt.Printf("Node Version: %s\n", version)
@@ -294,32 +289,9 @@ func fetchTimeStamp() {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return
 	}
-
-	// fmt.Printf("response: %v\n", response)
-
-	// fmt.Printf("response.Extrinsics: %v\n", response.Extrinsics)
-
-	// fmt.Printf("response.Extrinsics[0].Args.Now: %v\n", response.Extrinsics[0].Args.Now)
-
 	epochtime := response.Extrinsics[0].Args.Now
 	fmt.Printf("epochtime: %v\n", epochtime)
-
-	// ts, err := strconv.ParseInt(epochtime, 10, 64)
-	// if err != nil {
-	// 	fmt.Println("Error parsing epoch value:", err)
-	// 	return
-	// }
-
-	// t := time.Unix(ts/1000, 0) // Convert milliseconds to seconds
-	// loc, err := time.LoadLocation("GMT")
-	// if err != nil {
-	// 	fmt.Println("Error loading timezone:", err)
-	// 	return
-	// }
-	// t = t.In(loc)
-	// formattedTime := t.Format("Monday, January 02, 2006 3:04:05 PM MST")
 	ts, _ := strconv.ParseFloat(epochtime, 64)
-	// Export the converted timestamp to Prometheus
 	timeStamp.Set(ts) // Export as seconds
 
 	fmt.Printf("Fetched timestamp: %s\n", epochtime)
@@ -481,6 +453,7 @@ func fetchNominationPool() {
 
 	nominationpool := response.Value
 	np, _ := strconv.ParseFloat(nominationpool, 64)
+	fmt.Printf("np................ %v\n", np)
 	nominationPool.Set(np)
 
 }
@@ -512,7 +485,7 @@ func fetchCurrentEra() {
 
 func fetchProposalCount() {
 	pcendpoint := apiEndpoint + "/pallets/council/storage/proposalCount"
-	fmt.Printf("currentSlot: %v\n", pcendpoint)
+	fmt.Printf("proposalendpoint: %v\n", pcendpoint)
 	resp, err := http.Get(pcendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch proposal count", err)
@@ -557,9 +530,9 @@ func fetchReferendumCount() {
 		return
 	}
 
-	referendumCount := response.Value
-	rc, _ := strconv.ParseFloat(referendumCount, 64)
-	nominationPool.Set(rc)
+	referendum := response.Value
+	rc, _ := strconv.ParseFloat(referendum, 64)
+	referendumCount.Set(rc)
 }
 
 func fetchPublicProposalCount() {
@@ -582,9 +555,9 @@ func fetchPublicProposalCount() {
 		return
 	}
 
-	publicProposalCount := response.Value
-	ppc, _ := strconv.ParseFloat(publicProposalCount, 64)
-	nominationPool.Set(ppc)
+	publicpc := response.Value
+	ppc, _ := strconv.ParseFloat(publicpc, 64)
+	publicProposalCount.Set(ppc)
 }
 
 func fetchBountyProposalCount() {
@@ -607,9 +580,9 @@ func fetchBountyProposalCount() {
 		return
 	}
 
-	bountyProposalCount := response.Value
-	bpc, _ := strconv.ParseFloat(bountyProposalCount, 64)
-	nominationPool.Set(bpc)
+	bountypc := response.Value
+	bpc, _ := strconv.ParseFloat(bountypc, 64)
+	bountyProposalCount.Set(bpc)
 }
 
 func fetchCouncilMember() {
@@ -632,10 +605,11 @@ func fetchCouncilMember() {
 		return
 	}
 
-	councilMembers := response.Value
-	cm, _ := strconv.ParseFloat(councilMembers, 64)
-	fmt.Printf("!!!!!!!!!!!!!!!! %v\n", cm)
-	nominationPool.Set(cm)
+	councilmem := response.Value[0]
+	fmt.Println(councilmem)
+	cm, _ := strconv.ParseFloat(councilmem, 32)
+	fmt.Printf("cm prom metric-------- %v\n", cm)
+	councilMember.Set(cm)
 
 }
 
@@ -663,7 +637,7 @@ func main() {
 	prometheus.MustRegister(referendumCount)
 	prometheus.MustRegister(publicProposalCount)
 	prometheus.MustRegister(bountyProposalCount)
-	prometheus.MustRegister(councilMembers)
+	prometheus.MustRegister(councilMember)
 
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
@@ -691,6 +665,4 @@ func main() {
 		fetchCouncilMember()
 		time.Sleep(timeInterval)
 	}
-
-	// fmt.Println(string(version))
 }
