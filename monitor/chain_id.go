@@ -3,63 +3,45 @@ package monitor
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"io"
+	"net/http"
 
-	"github.com/gorilla/websocket"
+	"github.com/vitwit/avail-monitor/config"
 )
 
-// Response represents the desired JSON format
-type Response struct {
-	Chain string `json:"chain"`
-}
-
-func getChainID() {
-	// WebSocket URL
-	wsURL := "wss://kate.avail.tools/ws"
-
-	// Establish WebSocket connection
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+func FetchChainID(cfg *config.Config) (string, error) {
+	endpoint := cfg.Endpoint.URLEndpoint + "/node/version"
+	fmt.Printf("apiEndpoint: %v\n", endpoint)
+	resp, err := http.Get(endpoint)
 	if err != nil {
-		log.Fatal("Error connecting to WebSocket:", err)
+		fmt.Println("Failed to fetch data:", err)
+		return "", err
 	}
-	defer conn.Close()
+	defer resp.Body.Close()
 
-	// Prepare the JSON-RPC request
-	request := map[string]interface{}{
-		"id":      1,
-		"jsonrpc": "2.0",
-		"method":  "system_chain",
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("Failed to fetch data. Status code: %d\n", resp.StatusCode)
+		return "", err
 	}
 
-	// Send the request
-	err = conn.WriteJSON(request)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal("Error sending request:", err)
+		fmt.Println("Failed to read response body:", err)
+		return "", err
 	}
 
-	// Read the response
-	var response map[string]interface{}
-	err = conn.ReadJSON(&response)
-	if err != nil {
-		log.Fatal("Error reading response:", err)
+	var data map[string]string
+	if err := json.Unmarshal(body, &data); err != nil {
+		fmt.Println("Failed to unmarshal JSON:", err)
+		return "", err
 	}
 
-	// Extract the "result" field
-	result, ok := response["result"].(string)
-	if !ok {
-		log.Fatal("Response does not contain a valid 'result' field")
+	chain, found := data["chain"]
+	if !found {
+		fmt.Println("Chain not found in response")
+		return "", err
 	}
 
-	// Create the desired response format
-	formattedResponse := Response{
-		Chain: result,
-	}
+	return chain, nil
 
-	// Marshal the formatted response into JSON
-	jsonResponse, err := json.Marshal(formattedResponse)
-	if err != nil {
-		log.Fatal("Error marshaling response:", err)
-	}
-
-	fmt.Println(string(jsonResponse))
 }

@@ -1,6 +1,12 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+	"log"
+
+	"github.com/spf13/viper"
+	"gopkg.in/go-playground/validator.v9"
+)
 
 type Prometheus struct {
 	// ListenAddress to export metrics on the given port
@@ -9,27 +15,40 @@ type Prometheus struct {
 	PrometheusAddress string `mapstructure:"prometheus_address"`
 }
 
-type Endpoints struct {
+type Endpoint struct {
 	URLEndpoint string `mapstructure:"url_endpoint"`
 }
 
 type Config struct {
-	URLEndpoint string     `mapstructure:"url_endpoint"`
-	Prometheus  Prometheus `mapstructure:"prometheus"`
+	Endpoint   Endpoint   `mapstructure:"url_endpoint"`
+	Prometheus Prometheus `mapstructure:"prometheus"`
 }
 
-func ReadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigName("config")
-	viper.SetConfigType("toml")
-
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
+func ReadConfig() (*Config, error) {
+	v := viper.New()
+	v.AddConfigPath(".")
+	v.AddConfigPath("./config/")
+	v.SetConfigName("config")
+	if err := v.ReadInConfig(); err != nil {
+		log.Fatalf("error while reading config.toml: %v", err)
 	}
+	var cfg Config
+	if err := v.Unmarshal(&cfg); err != nil {
+		log.Fatalf("error unmarshaling config.toml to application config: %v", err)
+	}
+	if err := cfg.Validate(); err != nil {
+		log.Fatalf("error occurred in config validation: %v", err)
+	}
+	fmt.Println("config.....", cfg)
+	return &cfg, nil
+}
 
-	err = viper.Unmarshal(&config)
-	return
+func (c *Config) Validate(e ...string) error {
+	v := validator.New()
+	if len(e) == 0 {
+		return v.Struct(c)
+	}
+	return v.StructExcept(c, e...)
 }
 
 // import (

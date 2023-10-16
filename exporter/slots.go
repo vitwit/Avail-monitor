@@ -1,41 +1,45 @@
 package exporter
 
-// import (
-// 	"time"
+import (
+	"log"
+	"strconv"
+	"time"
 
-// 	"github.com/prometheus/client_golang/prometheus"
-// )
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/vitwit/avail-monitor/config"
+	"github.com/vitwit/avail-monitor/monitor"
+)
 
-// const slotSchedule = 25 * time.Second
+const slotTimeOut = 25 * time.Second
 
 // // scrape time = 25 secs
 // // two different scrape times if yes {different set of metrics}
 // // all the queries in single ws conn.
-// var (
-// 	clientVersion = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "avail_node_version",
-// 		Help: "node version of avail",
-// 	})
+var (
+	// 	clientVersion = prometheus.NewGauge(prometheus.GaugeOpts{
+	// 		Name: "avail_node_version",
+	// 		Help: "node version of avail",
+	// 	})
 
-// 	chainID = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "chain_id",
-// 		Help: "chain id of the network",
-// 	})
+	// 	chainID = prometheus.NewGauge(prometheus.GaugeOpts{
+	// 		Name: "chain_id",
+	// 		Help: "chain id of the network",
+	// 	})
 
-// 	latestBestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "latest_best_block",
-// 		Help: "best block of the network",
-// 	})
+	// 	latestBestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
+	// 		Name: "latest_best_block",
+	// 		Help: "best block of the network",
+	// 	})
 
-// 	latestFinalizedBlock = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "latest_finalized_block",
-// 		Help: "finalized block of the network",
-// 	})
+	// 	latestFinalizedBlock = prometheus.NewGauge(prometheus.GaugeOpts{
+	// 		Name: "latest_finalized_block",
+	// 		Help: "finalized block of the network",
+	// 	})
 
-// 	timestampOfLatestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "timestamp_of_latest_block",
-// 		Help: "timestamp of the best block in unix milliseconds",
-// 	})
+	timestampOfLatestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "timestamp_of_latest_block",
+		Help: "timestamp of the best block in unix milliseconds",
+	})
 
 // 	currentSlot = prometheus.NewGauge(prometheus.GaugeOpts{
 // 		Name: "current_slot",
@@ -102,31 +106,50 @@ package exporter
 // 		Help: "current elected members",
 // 	})
 
-// 	currentValidators = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "current_validators",
-// 		Help: "list of current validators",
-// 	})
-// )
+//	currentValidators = prometheus.NewGauge(prometheus.GaugeOpts{
+//		Name: "current_validators",
+//		Help: "list of current validators",
+//	})
+)
 
-// func init() {
-// 	//prometheus.MustRegister(clientVersion)
-// 	prometheus.MustRegister(chainID)
-// 	prometheus.MustRegister(latestBestBlock)
-// 	prometheus.MustRegister(latestFinalizedBlock)
-// 	prometheus.MustRegister(timestampOfLatestBlock)
-// 	prometheus.MustRegister(currentSlot)
-// 	prometheus.MustRegister(currentEpoch)
-// 	prometheus.MustRegister(currentEpochStartTime)
-// 	prometheus.MustRegister(currentEpochEndTime)
-// 	prometheus.MustRegister(totalTokensIssued)
-// 	prometheus.MustRegister(totalBondedTokens)
-// 	prometheus.MustRegister(currentEra)
-// 	prometheus.MustRegister(bountyProposals)
-// 	prometheus.MustRegister(councilMembers)
-// 	prometheus.MustRegister(totalCouncilProposals)
-// 	prometheus.MustRegister(totalPublicProposals)
-// 	prometheus.MustRegister(totalPublicReferendums)
-// 	prometheus.MustRegister(currentElectedMembers)
-// 	prometheus.MustRegister(currentValidators)
+func init() {
+	// 	//prometheus.MustRegister(clientVersion)
+	// 	prometheus.MustRegister(chainID)
+	// 	prometheus.MustRegister(latestBestBlock)
+	// 	prometheus.MustRegister(latestFinalizedBlock)
+	prometheus.MustRegister(timestampOfLatestBlock)
+	// 	prometheus.MustRegister(currentSlot)
+	// 	prometheus.MustRegister(currentEpoch)
+	// 	prometheus.MustRegister(currentEpochStartTime)
+	// 	prometheus.MustRegister(currentEpochEndTime)
+	// 	prometheus.MustRegister(totalTokensIssued)
+	// 	prometheus.MustRegister(totalBondedTokens)
+	// 	prometheus.MustRegister(currentEra)
+	// 	prometheus.MustRegister(bountyProposals)
+	// 	prometheus.MustRegister(councilMembers)
+	// 	prometheus.MustRegister(totalCouncilProposals)
+	// 	prometheus.MustRegister(totalPublicProposals)
+	// 	prometheus.MustRegister(totalPublicReferendums)
+	// 	prometheus.MustRegister(currentElectedMembers)
+	// 	prometheus.MustRegister(currentValidators)
 
-// }
+}
+
+func (c *availCollector) WatchSlots(cfg *config.Config) {
+	ticker := time.NewTicker(slotTimeOut)
+
+	for {
+		<-ticker.C
+
+		timestamp, err := monitor.FetchTimeStamp(c.config)
+		if err != nil {
+			log.Printf("Error while getting timestamp: %v", err)
+		}
+		ts, err := strconv.ParseFloat(timestamp, 64)
+		if err != nil {
+			log.Printf("Error while converting to float: %v", err)
+		}
+		timestampOfLatestBlock.Set(ts)
+
+	}
+}
