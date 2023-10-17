@@ -29,7 +29,7 @@ func FetchTimeStamp(cfg *config.Config) (string, error) {
 		return "", err
 	}
 	epochtime := response.Extrinsics[0].Args.Now
-	fmt.Printf("epochtime: %v\n", epochtime)
+	// fmt.Printf("epochtime: %v\n", epochtime)
 
 	return epochtime, nil
 	// ts, _ := strconv.ParseFloat(epochtime, 64)
