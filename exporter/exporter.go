@@ -10,23 +10,12 @@ type availCollector struct {
 	config      *config.Config
 	nodeVersion *prometheus.Desc
 	chainName   *prometheus.Desc
-	// currentSlot         *prometheus.Desc
-	// epochIndex          *prometheus.Desc
-	// timeStamp *prometheus.Desc
-	// bestBlock           *prometheus.Desc
-	// finalizedBlock      *prometheus.Desc
-	// epochstartTime      *prometheus.Desc
-	// epochendTime        *prometheus.Desc
-	// totaltokensIssued   *prometheus.Desc
+	// totaltokensIssued *prometheus.Desc
 	// nominationPool      *prometheus.Desc
-	// currentEra          *prometheus.Desc
 	// boundedToken        *prometheus.Desc
-	// proposalCount       *prometheus.Desc
-	// referendumCount     *prometheus.Desc
-	// publicProposalCount *prometheus.Desc
 	// bountyProposalCount *prometheus.Desc
-	// councilMember       *prometheus.Desc
-	// electedMember       *prometheus.Desc
+	councilMember *prometheus.Desc
+	electedMember *prometheus.Desc
 }
 
 func NewAvailCollector(cfg *config.Config) *availCollector {
@@ -40,13 +29,27 @@ func NewAvailCollector(cfg *config.Config) *availCollector {
 			"chain",
 			"Name of the chain",
 			[]string{"chain"}, nil),
+		// totaltokensIssued: prometheus.NewDesc(
+		// 	"total_tokens_issued",
+		// 	"total tokens issued on network",
+		// 	[]string{"value"}, nil),
+		councilMember: prometheus.NewDesc(
+			"council_member_value",
+			"council members of the network",
+			[]string{"value"}, nil),
+		electedMember: prometheus.NewDesc(
+			"current_elected_member",
+			"elected members of the network",
+			[]string{"value"}, nil),
 	}
-
 }
 
 func (c *availCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.nodeVersion
 	ch <- c.chainName
+	// ch <- c.totaltokensIssued
+	ch <- c.councilMember
+	ch <- c.electedMember
 
 }
 
@@ -57,6 +60,7 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(c.nodeVersion, prometheus.GaugeValue, 1, version)
 	}
+
 	chain, err := monitor.FetchChainID(c.config)
 	if err != nil {
 		ch <- prometheus.NewInvalidMetric(c.nodeVersion, err)
@@ -64,11 +68,25 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.chainName, prometheus.GaugeValue, 1, chain)
 	}
 
-	// epochTime, err := monitor.FetchTimeStamp(c.config)
+	// tokensIssued, err := monitor.FetchTotalTokensIssued(c.config)
 	// if err != nil {
-	// 	ch <- prometheus.NewInvalidMetric(c.timeStamp, err)
+	// 	ch <- prometheus.NewInvalidMetric(c.totaltokensIssued, err)
 	// } else {
-	// 	ch <- prometheus.MustNewConstMetric(c.timeStamp, prometheus.GaugeValue, 1, epochTime)
+	// 	ch <- prometheus.MustNewConstMetric(c.totaltokensIssued, prometheus.GaugeValue, 1, tokensIssued)
 	// }
+
+	councilMem, err := monitor.FetchCouncilMember(c.config)
+	if err != nil {
+		ch <- prometheus.NewInvalidMetric(c.councilMember, err)
+	} else {
+		ch <- prometheus.MustNewConstMetric(c.councilMember, prometheus.GaugeValue, 1, councilMem)
+	}
+
+	electedMem, err := monitor.FetchElectedMember(c.config)
+	if err != nil {
+		ch <- prometheus.NewInvalidMetric(c.electedMember, err)
+	} else {
+		ch <- prometheus.MustNewConstMetric(c.electedMember, prometheus.GaugeValue, 1, electedMem)
+	}
 
 }

@@ -9,9 +9,10 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
-func FetchCouncilMember(cfg *config.Config) (string, error) {
-	cmendpoint := cfg.Endpoint.URLEndpoint + "/pallets/council/storage/members"
-	resp, err := http.Get(cmendpoint)
+func FetchNominationPool(cfg *config.Config) (string, error) {
+	poolendpoint := cfg.Endpoint.URLEndpoint + "/pallets/nominationPools/storage/counterForBondedPools"
+	fmt.Printf("epochindex enddpoint: %v\n", poolendpoint)
+	resp, err := http.Get(poolendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch nomination pools", err)
 		return "", err
@@ -23,18 +24,17 @@ func FetchCouncilMember(cfg *config.Config) (string, error) {
 		return "", err
 	}
 
-	var response types.CouncilMembers
+	var response types.NominationPool
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		fmt.Println("Failed to unmarshal JSON:", err)
 		return "", err
 	}
 
-	councilmem := response.Value[0]
-	return councilmem, nil
+	nominationpool := response.Value
+	return nominationpool, nil
 
-	// fmt.Println(councilmem)
-	// cm, _ := strconv.ParseFloat(councilmem, 64)
-	// fmt.Printf("cm prom metric-------- %v\n", cm)
-	// councilMember.WithLabelValues(councilmem).Set(1)
+	// np, _ := strconv.ParseFloat(nominationpool, 64)
+	// fmt.Printf("np................ %v\n", np)
+	// nominationPool.Set(np)
 
 }

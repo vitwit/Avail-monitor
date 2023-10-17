@@ -2,6 +2,7 @@ package exporter
 
 import (
 	"log"
+	"math"
 	"strconv"
 	"time"
 
@@ -36,39 +37,44 @@ var (
 		Help: "current slot number being queried",
 	})
 
-	// 	currentEpoch = prometheus.NewGauge(prometheus.GaugeOpts{
-	// 		Name: "current_epoch",
-	// 		Help: "current epoch being queried",
-	// 	})
+	currentEpoch = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "current_epoch",
+		Help: "current epoch being queried",
+	})
 
-	// 	currentEpochStartTime = prometheus.NewGauge(prometheus.GaugeOpts{
-	// 		Name: "current_epoch_start_time",
-	// 		Help: "Block height on which the current epoch started",
-	// 	})
+	currentEpochStartTime = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "current_epoch_start_time",
+		Help: "Block height on which the current epoch started",
+	})
 
-	// 	currentEpochEndTime = prometheus.NewGauge(prometheus.GaugeOpts{
-	// 		Name: "current_epoch_end_time",
-	// 		Help: "Block height on which the current epoch ends",
-	// 	})
+	currentEpochEndTime = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "current_epoch_end_time",
+		Help: "Block height on which the current epoch ends",
+	})
 
-	// 	totalTokensIssued = prometheus.NewGauge(prometheus.GaugeOpts{
-	// 		Name: "total_tokens_issued",
-	// 		Help: "total tokens issued on the network",
-	// 	})
+	totalTokensIssued = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "total_tokens_issued",
+		Help: "total tokens issued on the network",
+	})
 
 	// 	totalBondedTokens = prometheus.NewGauge(prometheus.GaugeOpts{
 	// 		Name: "total_bonded_tokens",
 	// 		Help: "total number of units issued on the network",
 	// 	})
 
-	// 	currentEra = prometheus.NewGauge(prometheus.GaugeOpts{
-	// 		Name: "current_era",
-	// 		Help: "current era",
-	// 	})
+	currentEra = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "current_era",
+		Help: "current era",
+	})
 
 	bountyProposals = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "bounty_proposals",
 		Help: "numbet of bounty proposals made on the network",
+	})
+
+	nominationPool = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "nomination_pool",
+		Help: "number of nomination pools",
 	})
 
 	// councilMembers = prometheus.NewGauge(prometheus.GaugeOpts{
@@ -76,20 +82,20 @@ var (
 	// 	Help: "council members",
 	// })
 
-// 	totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "total_council_proposals",
-// 		Help: "number of total council proposals on the network",
-// 	})
+	totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "total_council_proposals",
+		Help: "number of total council proposals on the network",
+	})
 
-// 	totalPublicProposals = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "total_public_proposals",
-// 		Help: "number of total public proposals on the network",
-// 	})
+	totalPublicProposals = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "total_public_proposals",
+		Help: "number of total public proposals on the network",
+	})
 
-// 	totalPublicReferendums = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "total_public_referendums",
-// 		Help: "number of total public referendums on the network",
-// 	})
+	totalPublicReferendums = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "total_public_referendums",
+		Help: "number of total public referendums on the network",
+	})
 
 // 	currentElectedMembers = prometheus.NewGauge(prometheus.GaugeOpts{
 // 		Name: "current_elected_members",
@@ -108,17 +114,18 @@ func init() {
 	prometheus.MustRegister(latestFinalizedBlock)
 	prometheus.MustRegister(timestampOfLatestBlock)
 	prometheus.MustRegister(currentSlot)
-	// 	prometheus.MustRegister(currentEpoch)
-	// 	prometheus.MustRegister(currentEpochStartTime)
-	// 	prometheus.MustRegister(currentEpochEndTime)
-	// 	prometheus.MustRegister(totalTokensIssued)
+	prometheus.MustRegister(currentEpoch)
+	prometheus.MustRegister(currentEpochStartTime)
+	prometheus.MustRegister(currentEpochEndTime)
+	prometheus.MustRegister(totalTokensIssued)
 	// 	prometheus.MustRegister(totalBondedTokens)
-	// 	prometheus.MustRegister(currentEra)
+	prometheus.MustRegister(currentEra)
 	prometheus.MustRegister(bountyProposals)
+	prometheus.MustRegister(nominationPool)
 	// prometheus.MustRegister(councilMembers)
-	// 	prometheus.MustRegister(totalCouncilProposals)
-	// 	prometheus.MustRegister(totalPublicProposals)
-	// 	prometheus.MustRegister(totalPublicReferendums)
+	prometheus.MustRegister(totalCouncilProposals)
+	prometheus.MustRegister(totalPublicProposals)
+	prometheus.MustRegister(totalPublicReferendums)
 	// 	prometheus.MustRegister(currentElectedMembers)
 	// 	prometheus.MustRegister(currentValidators)
 
@@ -179,5 +186,94 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 			log.Printf("Error while converting bounty proposal: %v", err)
 		}
 		bountyProposals.Set(bp)
+
+		endT, err := monitor.FetchEpochEndTime(c.config)
+		if err != nil {
+			log.Printf("Error while fetching epoch end time: %v", err)
+		}
+		eT, err := strconv.ParseFloat(endT, 64)
+		if err != nil {
+			log.Printf("Error while converting epoch end time: %v", err)
+		}
+		currentEpochEndTime.Set(eT)
+
+		startT, err := monitor.FetchEpochStartTime(c.config)
+		if err != nil {
+			log.Printf("Error while fetching epoch start time: %v", err)
+		}
+		sT, err := strconv.ParseFloat(startT, 64)
+		if err != nil {
+			log.Printf("Error while converting epoch end time: %v", err)
+		}
+		currentEpochStartTime.Set(sT)
+
+		cEpoch, err := monitor.FetchEpochIndex(c.config)
+		if err != nil {
+			log.Printf("Error while fetching current epoch: %v", err)
+		}
+		cE, err := strconv.ParseFloat(cEpoch, 64)
+		if err != nil {
+			log.Printf("Error while converting current epoch: %v", err)
+		}
+		currentEpoch.Set(cE)
+
+		cEra, err := monitor.FetchCurrentEra(c.config)
+		if err != nil {
+			log.Printf("Error while fetching current era: %v", err)
+		}
+		ce, err := strconv.ParseFloat(cEra, 64)
+		if err != nil {
+			log.Printf("Error while converting current era: %v", err)
+		}
+		currentEra.Set(ce)
+
+		publicProposal, err := monitor.FetchPublicProposalCount(c.config)
+		if err != nil {
+			log.Printf("Error while fetching public proposal count: %v", err)
+		}
+		pp, err := strconv.ParseFloat(publicProposal, 64)
+		if err != nil {
+			log.Printf("Error while converting public proposal count: %v", err)
+		}
+		totalPublicProposals.Set(pp)
+
+		referendumC, err := monitor.FetchReferendumCount(c.config)
+		if err != nil {
+			log.Printf("Error while fetching referendum count: %v", err)
+		}
+		rc, _ := strconv.ParseFloat(referendumC, 64)
+		totalPublicReferendums.Set(rc)
+
+		tokensIssued, err := monitor.FetchTotalTokensIssued(c.config)
+		if err != nil {
+			log.Printf("Error while fetching total tokens issued: %v", err)
+		}
+		tt, err := strconv.ParseFloat(tokensIssued, 64)
+		if err != nil {
+			log.Printf("Error while converting total tokens: %v", err)
+		}
+		abcd := math.Floor(tt / math.Pow(10, 18))
+		totalTokensIssued.Set(abcd)
+
+		nPool, err := monitor.FetchNominationPool(c.config)
+		if err != nil {
+			log.Printf("Error while fetching nomination pool value: %v", err)
+		}
+		np, err := strconv.ParseFloat(nPool, 64)
+		if err != nil {
+			log.Printf("Error while converting nomination pool: %v", err)
+		}
+		nominationPool.Set(np)
+
+		councilproposal, err := monitor.FetchCouncilProposalCount(c.config)
+		if err != nil {
+			log.Printf("Error while fetching council proposal count: %v", err)
+		}
+		cpc, err := strconv.ParseFloat(councilproposal, 64)
+		if err != nil {
+			log.Printf("Error while converting council proposal count: %v", err)
+		}
+		totalCouncilProposals.Set(cpc)
+
 	}
 }

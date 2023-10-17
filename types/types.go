@@ -64,6 +64,10 @@ type CouncilMembers struct {
 	Value []string `json:"value"`
 }
 
+type CouncilProposals struct {
+	Value string `json:"value"`
+}
+
 type ElectedMembers struct {
 	Value []struct {
 		Who string `json:"who"`
