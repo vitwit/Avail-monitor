@@ -74,6 +74,6 @@ type ElectedMembers struct {
 	} `json:"value"`
 }
 
-type BoundedTokens struct {
+type bondedTokens struct {
 	Value string `json:"value"`
 }

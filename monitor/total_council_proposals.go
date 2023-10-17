@@ -10,7 +10,7 @@ import (
 )
 
 func FetchCouncilProposalCount(cfg *config.Config) (string, error) {
-	cpendpoint := cfg.Endpoint.URLEndpoint + "pallets/council/storage/proposalCount"
+	cpendpoint := cfg.Endpoint.URLEndpoint + "/pallets/council/storage/proposalCount"
 	resp, err := http.Get(cpendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch council proposal count", err)

@@ -115,9 +115,9 @@ func main() {
 // 		Name: "current_era_value",
 // 		Help: "current era",
 // 	})
-// 	boundedToken = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-// 		Name: "total_bounded_token_value",
-// 		Help: "bounded token value",
+// 	bondedToken = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+// 		Name: "total_bonded_token_value",
+// 		Help: "bonded token value",
 // 	}, []string{"value"})
 // 	proposalCount = prometheus.NewGauge(prometheus.GaugeOpts{
 // 		Name: "proposal_count_value",
@@ -465,36 +465,36 @@ func main() {
 // 	e, _ := strconv.ParseFloat(value, 64)
 // 	currentEra.Set(e)
 
-// 	//***** bounded-tokens
+// 	//***** bonded-tokens
 // 	btendpoint := apiEndpoint + "/pallets/staking/storage/erasTotalStake?keys[]=" + response.Value
-// 	fmt.Println("bounded token endpoint:", btendpoint)
+// 	fmt.Println("bonded token endpoint:", btendpoint)
 // 	res, err := http.Get(btendpoint)
 // 	if err != nil {
-// 		fmt.Println("failed to fetch bounded token value", err)
+// 		fmt.Println("failed to fetch bonded token value", err)
 // 		return
 // 	}
 // 	defer resp.Body.Close()
 
 // 	if resp.StatusCode != http.StatusOK {
-// 		fmt.Printf("failed to fetch current bounded token code %d\n", resp.StatusCode)
+// 		fmt.Printf("failed to fetch current bonded token code %d\n", resp.StatusCode)
 // 		return
 // 	}
 
-// 	var result types.BoundedTokens
+// 	var result types.bondedTokens
 // 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-// 		fmt.Println("Failed to unmarshal bounded token JSON:", err)
+// 		fmt.Println("Failed to unmarshal bonded token JSON:", err)
 // 		return
 // 	}
-// 	bounded := result.Value
-// 	fmt.Printf("bounded: %v\n", bounded)
-// 	z, err := strconv.ParseFloat(bounded, 64)
+// 	bonded := result.Value
+// 	fmt.Printf("bonded: %v\n", bonded)
+// 	z, err := strconv.ParseFloat(bonded, 64)
 // 	if err != nil {
 // 		fmt.Printf("err: %v\n", err)
 // 	}
 // 	fmt.Printf("z: %v\n", z)
 // 	m := math.Floor(z / math.Pow(10, 18))
 
-// 	boundedToken.WithLabelValues(fmt.Sprintf("%.11e", m)).Set(1.0)
+// 	bondedToken.WithLabelValues(fmt.Sprintf("%.11e", m)).Set(1.0)
 
 // }
 
@@ -686,7 +686,7 @@ func main() {
 // 	prometheus.MustRegister(bountyProposalCount)
 // 	prometheus.MustRegister(councilMember)
 // 	prometheus.MustRegister(electedMember)
-// 	prometheus.MustRegister(boundedToken)
+// 	prometheus.MustRegister(bondedToken)
 
 // 	go func() {
 // 		http.Handle("/metrics", promhttp.Handler())

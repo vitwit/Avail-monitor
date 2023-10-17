@@ -12,7 +12,7 @@ type availCollector struct {
 	chainName   *prometheus.Desc
 	// totaltokensIssued *prometheus.Desc
 	// nominationPool      *prometheus.Desc
-	// boundedToken        *prometheus.Desc
+	// bondedToken        *prometheus.Desc
 	// bountyProposalCount *prometheus.Desc
 	councilMember *prometheus.Desc
 	electedMember *prometheus.Desc
