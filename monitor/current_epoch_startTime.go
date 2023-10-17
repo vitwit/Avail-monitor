@@ -32,9 +32,4 @@ func FetchEpochStartTime(cfg *config.Config) (string, error) {
 
 	startTime := response.Value[0]
 	return startTime, nil
-
-	// fmt.Println(startTime)
-	// st, _ := strconv.ParseFloat(startTime, 64)
-	// epochstartTime.Set(st)
-
 }

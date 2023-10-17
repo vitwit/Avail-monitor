@@ -14,8 +14,9 @@ type availCollector struct {
 	// nominationPool      *prometheus.Desc
 	// bondedToken        *prometheus.Desc
 	// bountyProposalCount *prometheus.Desc
-	councilMember *prometheus.Desc
-	electedMember *prometheus.Desc
+	councilMember        *prometheus.Desc
+	electedMember        *prometheus.Desc
+	latestFinalizedBlock *prometheus.Desc
 }
 
 func NewAvailCollector(cfg *config.Config) *availCollector {
@@ -25,10 +26,12 @@ func NewAvailCollector(cfg *config.Config) *availCollector {
 			"node_version",
 			"Node Version Information",
 			[]string{"version"}, nil),
+
 		chainName: prometheus.NewDesc(
 			"chain",
 			"Name of the chain",
 			[]string{"chain"}, nil),
+
 		// totaltokensIssued: prometheus.NewDesc(
 		// 	"total_tokens_issued",
 		// 	"total tokens issued on network",
@@ -37,10 +40,16 @@ func NewAvailCollector(cfg *config.Config) *availCollector {
 			"council_member_value",
 			"council members of the network",
 			[]string{"value"}, nil),
+
 		electedMember: prometheus.NewDesc(
 			"current_elected_member",
 			"elected members of the network",
 			[]string{"value"}, nil),
+
+		latestFinalizedBlock: prometheus.NewDesc(
+			"latest_finalized_block",
+			"latest finalized block of the network",
+			[]string{"hash"}, nil),
 	}
 }
 
@@ -50,7 +59,6 @@ func (c *availCollector) Describe(ch chan<- *prometheus.Desc) {
 	// ch <- c.totaltokensIssued
 	ch <- c.councilMember
 	ch <- c.electedMember
-
 }
 
 func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
@@ -87,6 +95,13 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.NewInvalidMetric(c.electedMember, err)
 	} else {
 		ch <- prometheus.MustNewConstMetric(c.electedMember, prometheus.GaugeValue, 1, electedMem)
+	}
+
+	finalizedB, err := monitor.FetchFinalizedBlock(c.config)
+	if err != nil {
+		ch <- prometheus.NewInvalidMetric(c.latestFinalizedBlock, err)
+	} else {
+		ch <- prometheus.MustNewConstMetric(c.latestFinalizedBlock, prometheus.GaugeValue, 1, finalizedB)
 	}
 
 }

@@ -31,10 +31,4 @@ func FetchCouncilMember(cfg *config.Config) (string, error) {
 
 	councilmem := response.Value[0]
 	return councilmem, nil
-
-	// fmt.Println(councilmem)
-	// cm, _ := strconv.ParseFloat(councilmem, 64)
-	// fmt.Printf("cm prom metric-------- %v\n", cm)
-	// councilMember.WithLabelValues(councilmem).Set(1)
-
 }

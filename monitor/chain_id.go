@@ -11,7 +11,6 @@ import (
 
 func FetchChainID(cfg *config.Config) (string, error) {
 	endpoint := cfg.Endpoint.URLEndpoint + "/node/version"
-	fmt.Printf("apiEndpoint: %v\n", endpoint)
 	resp, err := http.Get(endpoint)
 	if err != nil {
 		fmt.Println("Failed to fetch data:", err)
@@ -43,5 +42,4 @@ func FetchChainID(cfg *config.Config) (string, error) {
 	}
 
 	return chain, nil
-
 }

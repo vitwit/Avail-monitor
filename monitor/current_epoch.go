@@ -32,9 +32,4 @@ func FetchEpochIndex(cfg *config.Config) (string, error) {
 
 	value := response.Value
 	return value, nil
-
-	// e, _ := strconv.ParseFloat(value, 64)
-	// epochIndex.Set(e)
-	// fmt.Printf("epoch index value: %s\n", value)
-
 }

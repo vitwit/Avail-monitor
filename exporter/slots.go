@@ -22,11 +22,6 @@ var (
 		Help: "best block of the network",
 	})
 
-	latestFinalizedBlock = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "latest_finalized_block",
-		Help: "finalized block of the network",
-	})
-
 	timestampOfLatestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "timestamp_of_latest_block",
 		Help: "timestamp of the best block in unix milliseconds",
@@ -77,11 +72,6 @@ var (
 		Help: "number of nomination pools",
 	})
 
-	// councilMembers = prometheus.NewGauge(prometheus.GaugeOpts{
-	// 	Name: "council_members",
-	// 	Help: "council members",
-	// })
-
 	totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "total_council_proposals",
 		Help: "number of total council proposals on the network",
@@ -111,7 +101,6 @@ var (
 func init() {
 
 	prometheus.MustRegister(latestBestBlock)
-	prometheus.MustRegister(latestFinalizedBlock)
 	prometheus.MustRegister(timestampOfLatestBlock)
 	prometheus.MustRegister(currentSlot)
 	prometheus.MustRegister(currentEpoch)
@@ -122,11 +111,9 @@ func init() {
 	prometheus.MustRegister(currentEra)
 	prometheus.MustRegister(bountyProposals)
 	prometheus.MustRegister(nominationPool)
-	// prometheus.MustRegister(councilMembers)
 	prometheus.MustRegister(totalCouncilProposals)
 	prometheus.MustRegister(totalPublicProposals)
 	prometheus.MustRegister(totalPublicReferendums)
-	// 	prometheus.MustRegister(currentElectedMembers)
 	// 	prometheus.MustRegister(currentValidators)
 
 }
@@ -156,16 +143,6 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 			log.Printf("Error while converting best block: %v", err)
 		}
 		latestBestBlock.Set(bb)
-
-		finalblock, err := monitor.FetchFinalizedBlock(c.config)
-		if err != nil {
-			log.Printf("Error while fetching finalized block: %v", err)
-		}
-		fb, err := strconv.ParseFloat(finalblock, 64)
-		if err != nil {
-			log.Printf("Error while converting finalized block %v", err)
-		}
-		latestFinalizedBlock.Set(fb)
 
 		slot, err := monitor.FetchCurrentSlot(c.config)
 		if err != nil {
@@ -274,6 +251,5 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 			log.Printf("Error while converting council proposal count: %v", err)
 		}
 		totalCouncilProposals.Set(cpc)
-
 	}
 }

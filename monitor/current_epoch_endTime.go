@@ -32,8 +32,4 @@ func FetchEpochEndTime(cfg *config.Config) (string, error) {
 
 	endTime := response.Value[1]
 	return endTime, nil
-
-	// et, _ := strconv.ParseFloat(endTime, 64)
-	// epochendTime.Set(et)
-
 }

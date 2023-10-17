@@ -31,5 +31,4 @@ func FetchReferendumCount(cfg *config.Config) (string, error) {
 
 	referendum := response.Value
 	return referendum, nil
-
 }

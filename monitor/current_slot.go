@@ -32,10 +32,4 @@ func FetchCurrentSlot(cfg *config.Config) (string, error) {
 
 	value := response.Value
 	return value, nil
-
-	// v, _ := strconv.ParseFloat(value, 64)
-	// fmt.Println("value here....", v)
-	// currentSlot.Set(v)
-	// fmt.Printf("current slot Value: %s\n", value)
-
 }

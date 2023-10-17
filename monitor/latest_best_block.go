@@ -32,6 +32,4 @@ func FetchBestBlock(cfg *config.Config) (string, error) {
 
 	block := response.Number
 	return block, err
-	// b, _ := strconv.ParseFloat(block, 64)
-	// bestBlock.Set(b)
 }

@@ -29,9 +29,5 @@ func FetchFinalizedBlock(cfg *config.Config) (string, error) {
 	}
 
 	finalizedblock := response.Hash
-	// h, _ := strconv.ParseFloat(finalizedblock, 64)
-	// fmt.Printf("finalized block ***********%v\n", h)
-	// finalizedBlock.Set(h)
 	return finalizedblock, nil
-
 }

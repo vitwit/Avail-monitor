@@ -32,9 +32,4 @@ func FetchNominationPool(cfg *config.Config) (string, error) {
 
 	nominationpool := response.Value
 	return nominationpool, nil
-
-	// np, _ := strconv.ParseFloat(nominationpool, 64)
-	// fmt.Printf("np................ %v\n", np)
-	// nominationPool.Set(np)
-
 }

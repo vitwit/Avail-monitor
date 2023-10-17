@@ -31,7 +31,4 @@ func FetchBountyProposalCount(cfg *config.Config) (string, error) {
 
 	bountypc := response.Value
 	return bountypc, nil
-
-	// bpc, _ := strconv.ParseFloat(bountypc, 64)
-	// bountyProposalCount.Set(bpc)
 }

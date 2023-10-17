@@ -31,7 +31,4 @@ func FetchCouncilProposalCount(cfg *config.Config) (string, error) {
 
 	councilP := response.Value
 	return councilP, nil
-
-	// ppc, _ := strconv.ParseFloat(publicpc, 64)
-	// publicProposalCount.Set(ppc)
 }

@@ -31,13 +31,4 @@ func FetchElectedMember(cfg *config.Config) (string, error) {
 
 	elecmem := response.Value[0].Who
 	return elecmem, nil
-
-	// fmt.Printf("elecmem: %v\n", elecmem)
-	// fmt.Println("-----------------------------------------------------------------------------------------------------------------------------------------", elecmem)
-	// cem, err := strconv.ParseFloat(elecmem, 64)
-	// if err != nil {
-	// 	fmt.Printf("err: %v\n", err)
-	// }
-	// fmt.Println("current elected member value------------------------------------------->", cem)
-	// electedMember.WithLabelValues(elecmem).Set(1)
 }

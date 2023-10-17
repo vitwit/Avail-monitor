@@ -32,7 +32,4 @@ func FetchCurrentEra(cfg *config.Config) (string, error) {
 
 	value := response.Value
 	return value, nil
-
-	// e, _ := strconv.ParseFloat(value, 64)
-	// currentEra.Set(e)
 }

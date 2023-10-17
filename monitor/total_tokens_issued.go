@@ -30,13 +30,4 @@ func FetchTotalTokensIssued(cfg *config.Config) (string, error) {
 
 	totalTokens := response.Value
 	return totalTokens, nil
-
-	// tt, _ := strconv.ParseFloat(totalTokens, 64)
-	// abcd := math.Floor(tt / math.Pow(10, 18))
-	// fmt.Printf("abcd: %v\n", abcd)
-
-	// ttI := tt / 1e18 //wrong conversion.. consider later..
-	//totaltokensIssued.Set(abcd)
-	// totaltokensIssued.WithLabelValues(fmt.Sprintf("%.11e", abcd)).Set(1)
-
 }

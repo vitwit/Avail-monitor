@@ -10,10 +10,7 @@ import (
 )
 
 func FetchVersion(cfg *config.Config) (string, error) {
-	fmt.Printf("cfg.URLEndpoint: %v\n", cfg.Endpoint.URLEndpoint)
 	endpoint := cfg.Endpoint.URLEndpoint + "/node/version"
-	fmt.Printf("endpoint: %v\n", endpoint)
-	fmt.Printf("version-endpoint: %v\n", endpoint)
 	resp, err := http.Get(endpoint)
 	if err != nil {
 		fmt.Println("Failed to fetch data:", err)
@@ -44,12 +41,5 @@ func FetchVersion(cfg *config.Config) (string, error) {
 		return "", err
 	}
 
-	fmt.Printf("version: %v\n", version)
-
 	return version, nil
-
-	// nodeVersion.WithLabelValues(version).Set(1)
-	// chainName.WithLabelValues(chain).Set(1)
-	// fmt.Printf("chain: %s\n", chain)
-	// fmt.Printf("Node Version: %s\n", version)
 }

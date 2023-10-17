@@ -31,7 +31,4 @@ func FetchPublicProposalCount(cfg *config.Config) (string, error) {
 
 	publicpc := response.Value
 	return publicpc, nil
-
-	// ppc, _ := strconv.ParseFloat(publicpc, 64)
-	// publicProposalCount.Set(ppc)
 }
