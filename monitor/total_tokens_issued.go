@@ -10,7 +10,7 @@ import (
 )
 
 func FetchTotalTokensIssued(cfg *config.Config) (string, error) {
-	tokenendpoint := cfg.Endpoint.URLEndpoint + "/pallets/balances/storage/totalIssuance"
+	tokenendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/balances/storage/totalIssuance"
 	resp, err := http.Get(tokenendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch total token issuance", err)
@@ -24,7 +24,7 @@ func FetchTotalTokensIssued(cfg *config.Config) (string, error) {
 
 	var response types.TotalTokensIssued
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch total tokens issued from the network:", err)
 		return "", err
 	}
 

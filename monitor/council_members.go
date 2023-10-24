@@ -10,22 +10,22 @@ import (
 )
 
 func FetchCouncilMember(cfg *config.Config) (string, error) {
-	cmendpoint := cfg.Endpoint.URLEndpoint + "/pallets/council/storage/members"
+	cmendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/council/storage/members"
 	resp, err := http.Get(cmendpoint)
 	if err != nil {
-		fmt.Println("failed to fetch nomination pools", err)
+		fmt.Println("failed to fetch council member value", err)
 		return "", err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("failed to fetch epoch number of nomination pools %d\n", resp.StatusCode)
+		fmt.Printf("failed to fetch status code of council member %d\n", resp.StatusCode)
 		return "", err
 	}
 
 	var response types.CouncilMembers
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch data for council members from endpoint:", err)
 		return "", err
 	}
 

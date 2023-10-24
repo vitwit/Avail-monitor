@@ -20,8 +20,8 @@ type Endpoint struct {
 }
 
 type Config struct {
-	Endpoint   Endpoint   `mapstructure:"url_endpoint"`
-	Prometheus Prometheus `mapstructure:"prometheus"`
+	RPC_Endpoint Endpoint   `mapstructure:"url_endpoint"`
+	Prometheus   Prometheus `mapstructure:"prometheus"`
 }
 
 func ReadConfig() (*Config, error) {

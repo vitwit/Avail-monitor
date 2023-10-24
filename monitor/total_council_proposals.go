@@ -10,10 +10,10 @@ import (
 )
 
 func FetchCouncilProposalCount(cfg *config.Config) (string, error) {
-	cpendpoint := cfg.Endpoint.URLEndpoint + "/pallets/council/storage/proposalCount"
+	cpendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/council/storage/proposalCount"
 	resp, err := http.Get(cpendpoint)
 	if err != nil {
-		fmt.Println("failed to fetch council proposal count", err)
+		fmt.Println("failed to fetch council proposal endpoint", err)
 		return "", err
 	}
 	defer resp.Body.Close()
@@ -25,7 +25,7 @@ func FetchCouncilProposalCount(cfg *config.Config) (string, error) {
 
 	var response types.CouncilProposals
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch total council proposals from endpoint:", err)
 		return "", err
 	}
 

@@ -9,7 +9,7 @@ package monitor
 // )
 
 // func FetchbondedToken(cfg *config.Config) (string, error) {
-// 	btendpoint := cfg.Endpoint.URLEndpoint + "/pallets/staking/storage/erasTotalStake?keys[]="
+// 	btendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/staking/storage/erasTotalStake?keys[]="
 // 	fmt.Println("bonded token endpoint:", btendpoint)
 // 	res, err := http.Get(btendpoint)
 // 	if err != nil {

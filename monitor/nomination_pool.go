@@ -10,8 +10,7 @@ import (
 )
 
 func FetchNominationPool(cfg *config.Config) (string, error) {
-	poolendpoint := cfg.Endpoint.URLEndpoint + "/pallets/nominationPools/storage/counterForBondedPools"
-	fmt.Printf("epochindex enddpoint: %v\n", poolendpoint)
+	poolendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/nominationPools/storage/counterForBondedPools"
 	resp, err := http.Get(poolendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch nomination pools", err)
@@ -26,7 +25,7 @@ func FetchNominationPool(cfg *config.Config) (string, error) {
 
 	var response types.NominationPool
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch nomination pool from endpoint:", err)
 		return "", err
 	}
 

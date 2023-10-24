@@ -10,46 +10,33 @@ type availCollector struct {
 	config      *config.Config
 	nodeVersion *prometheus.Desc
 	chainName   *prometheus.Desc
-	// totaltokensIssued *prometheus.Desc
-	// nominationPool      *prometheus.Desc
 	// bondedToken        *prometheus.Desc
-	// bountyProposalCount *prometheus.Desc
-	councilMember        *prometheus.Desc
-	electedMember        *prometheus.Desc
-	latestFinalizedBlock *prometheus.Desc
+	councilMember *prometheus.Desc
+	electedMember *prometheus.Desc
 }
 
 func NewAvailCollector(cfg *config.Config) *availCollector {
 	return &availCollector{
 		config: cfg,
 		nodeVersion: prometheus.NewDesc(
-			"node_version",
+			"avail_monitor_chain_node_version",
 			"Node Version Information",
 			[]string{"version"}, nil),
 
 		chainName: prometheus.NewDesc(
-			"chain",
+			"avail_monitor_chain_name",
 			"Name of the chain",
 			[]string{"chain"}, nil),
 
-		// totaltokensIssued: prometheus.NewDesc(
-		// 	"total_tokens_issued",
-		// 	"total tokens issued on network",
-		// 	[]string{"value"}, nil),
 		councilMember: prometheus.NewDesc(
-			"council_member_value",
+			"avail_monitor_council_members",
 			"council members of the network",
 			[]string{"value"}, nil),
 
 		electedMember: prometheus.NewDesc(
-			"current_elected_member",
+			"avail_monitor_elections_member",
 			"elected members of the network",
 			[]string{"value"}, nil),
-
-		latestFinalizedBlock: prometheus.NewDesc(
-			"latest_finalized_block",
-			"latest finalized block of the network",
-			[]string{"hash"}, nil),
 	}
 }
 
@@ -76,13 +63,6 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.chainName, prometheus.GaugeValue, 1, chain)
 	}
 
-	// tokensIssued, err := monitor.FetchTotalTokensIssued(c.config)
-	// if err != nil {
-	// 	ch <- prometheus.NewInvalidMetric(c.totaltokensIssued, err)
-	// } else {
-	// 	ch <- prometheus.MustNewConstMetric(c.totaltokensIssued, prometheus.GaugeValue, 1, tokensIssued)
-	// }
-
 	councilMem, err := monitor.FetchCouncilMember(c.config)
 	if err != nil {
 		ch <- prometheus.NewInvalidMetric(c.councilMember, err)
@@ -96,12 +76,4 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(c.electedMember, prometheus.GaugeValue, 1, electedMem)
 	}
-
-	finalizedB, err := monitor.FetchFinalizedBlock(c.config)
-	if err != nil {
-		ch <- prometheus.NewInvalidMetric(c.latestFinalizedBlock, err)
-	} else {
-		ch <- prometheus.MustNewConstMetric(c.latestFinalizedBlock, prometheus.GaugeValue, 1, finalizedB)
-	}
-
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func FetchChainID(cfg *config.Config) (string, error) {
-	endpoint := cfg.Endpoint.URLEndpoint + "/node/version"
+	endpoint := cfg.RPC_Endpoint.URLEndpoint + "/node/version"
 	resp, err := http.Get(endpoint)
 	if err != nil {
 		fmt.Println("Failed to fetch data:", err)
@@ -31,7 +31,7 @@ func FetchChainID(cfg *config.Config) (string, error) {
 
 	var data map[string]string
 	if err := json.Unmarshal(body, &data); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch data for chain id from endpoint:", err)
 		return "", err
 	}
 

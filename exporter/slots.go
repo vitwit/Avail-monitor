@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"strconv"
@@ -18,79 +19,69 @@ const slotTimeOut = 25 * time.Second
 // // all the queries in single ws conn.
 var (
 	latestBestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "latest_best_block",
+		Name: "avail_monitor_chain_best_block",
 		Help: "best block of the network",
 	})
 
 	timestampOfLatestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "timestamp_of_latest_block",
+		Name: "avail_monitor_chain_block_timestamp",
 		Help: "timestamp of the best block in unix milliseconds",
 	})
 
 	currentSlot = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "current_slot",
+		Name: "avail_monitor_babe_current_slot",
 		Help: "current slot number being queried",
 	})
 
 	currentEpoch = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "current_epoch",
+		Name: "avail_monitor_babe_current_epoch",
 		Help: "current epoch being queried",
 	})
 
 	currentEpochStartTime = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "current_epoch_start_time",
+		Name: "avail_monitor_current_epoch_start",
 		Help: "Block height on which the current epoch started",
 	})
 
 	currentEpochEndTime = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "current_epoch_end_time",
+		Name: "avail_monitor_current_epoch_end",
 		Help: "Block height on which the current epoch ends",
 	})
 
 	totalTokensIssued = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "total_tokens_issued",
+		Name: "avail_monitor_balances_total_tokens_issued",
 		Help: "total tokens issued on the network",
 	})
 
 	// 	totalBondedTokens = prometheus.NewGauge(prometheus.GaugeOpts{
-	// 		Name: "total_bonded_tokens",
+	// 		Name: "avail_monitor_staking_total_bonded_tokens",
 	// 		Help: "total number of units issued on the network",
 	// 	})
 
 	currentEra = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "current_era",
+		Name: "avail_monitor_staking_current_era",
 		Help: "current era",
 	})
 
 	bountyProposals = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "bounty_proposals",
+		Name: "avail_monitor_bounty_proposals_total",
 		Help: "numbet of bounty proposals made on the network",
 	})
 
 	nominationPool = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "nomination_pool",
+		Name: "avail_monitor_nomination_pool",
 		Help: "number of nomination pools",
 	})
 
 	totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "total_council_proposals",
+		Name: "avail_monitor_council_proposals_total",
 		Help: "number of total council proposals on the network",
 	})
 
 	totalPublicProposals = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "total_public_proposals",
+		Name: "avail_monitor_public_proposals_total",
 		Help: "number of total public proposals on the network",
 	})
-
-	totalPublicReferendums = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "total_public_referendums",
-		Help: "number of total public referendums on the network",
-	})
-
-// 	currentElectedMembers = prometheus.NewGauge(prometheus.GaugeOpts{
-// 		Name: "current_elected_members",
-// 		Help: "current elected members",
-// 	})
 
 //	currentValidators = prometheus.NewGauge(prometheus.GaugeOpts{
 //		Name: "current_validators",
@@ -113,7 +104,6 @@ func init() {
 	prometheus.MustRegister(nominationPool)
 	prometheus.MustRegister(totalCouncilProposals)
 	prometheus.MustRegister(totalPublicProposals)
-	prometheus.MustRegister(totalPublicReferendums)
 	// 	prometheus.MustRegister(currentValidators)
 
 }
@@ -214,13 +204,6 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		totalPublicProposals.Set(pp)
 
-		referendumC, err := monitor.FetchReferendumCount(c.config)
-		if err != nil {
-			log.Printf("Error while fetching referendum count: %v", err)
-		}
-		rc, _ := strconv.ParseFloat(referendumC, 64)
-		totalPublicReferendums.Set(rc)
-
 		tokensIssued, err := monitor.FetchTotalTokensIssued(c.config)
 		if err != nil {
 			log.Printf("Error while fetching total tokens issued: %v", err)
@@ -247,6 +230,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 			log.Printf("Error while fetching council proposal count: %v", err)
 		}
 		cpc, err := strconv.ParseFloat(councilproposal, 64)
+		fmt.Printf("cpc value: %v\n", cpc)
 		if err != nil {
 			log.Printf("Error while converting council proposal count: %v", err)
 		}

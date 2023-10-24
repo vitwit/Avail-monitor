@@ -10,8 +10,7 @@ import (
 )
 
 func FetchEpochIndex(cfg *config.Config) (string, error) {
-	epochendpoint := cfg.Endpoint.URLEndpoint + "/pallets/babe/storage/epochIndex"
-	fmt.Printf("epochindex enddpoint: %v\n", epochendpoint)
+	epochendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/babe/storage/epochIndex"
 	resp, err := http.Get(epochendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch epoch index", err)
@@ -26,7 +25,7 @@ func FetchEpochIndex(cfg *config.Config) (string, error) {
 
 	var response types.EpochIndex
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch current epoch from endpoint:", err)
 		return "", err
 	}
 

@@ -10,7 +10,7 @@ import (
 )
 
 func FetchBountyProposalCount(cfg *config.Config) (string, error) {
-	bpcendpoint := cfg.Endpoint.URLEndpoint + "/pallets/bounties/storage/bountyCount"
+	bpcendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/bounties/storage/bountyCount"
 	resp, err := http.Get(bpcendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch bounty proposal count value", err)
@@ -25,7 +25,7 @@ func FetchBountyProposalCount(cfg *config.Config) (string, error) {
 
 	var response types.BountyProposalCount
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Printf("Failed to fetch data for bounty proposals from endpoint: %d\n", err)
 		return "", err
 	}
 

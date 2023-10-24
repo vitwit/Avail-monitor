@@ -10,7 +10,7 @@ import (
 )
 
 func FetchElectedMember(cfg *config.Config) (string, error) {
-	cemendpoint := cfg.Endpoint.URLEndpoint + "/pallets/elections/storage/members"
+	cemendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/elections/storage/members"
 	resp, err := http.Get(cemendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch current elected member", err)
@@ -25,7 +25,7 @@ func FetchElectedMember(cfg *config.Config) (string, error) {
 
 	var response types.ElectedMembers
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch current elected members from endpoint:", err)
 		return "", err
 	}
 

@@ -10,7 +10,7 @@ import (
 )
 
 func FetchPublicProposalCount(cfg *config.Config) (string, error) {
-	ppcendpoint := cfg.Endpoint.URLEndpoint + "/pallets/democracy/storage/publicPropCount"
+	ppcendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/democracy/storage/publicPropCount"
 	resp, err := http.Get(ppcendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch public proposal count", err)
@@ -25,7 +25,7 @@ func FetchPublicProposalCount(cfg *config.Config) (string, error) {
 
 	var response types.PublicProposalCount
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch total public proposals from endpoint:", err)
 		return "", err
 	}
 

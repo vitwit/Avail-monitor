@@ -10,8 +10,7 @@ import (
 )
 
 func FetchCurrentEra(cfg *config.Config) (string, error) {
-	eraendpoint := cfg.Endpoint.URLEndpoint + "/pallets/staking/storage/currentEra"
-	fmt.Printf("currentSlot: %v\n", eraendpoint)
+	eraendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/staking/storage/currentEra"
 	resp, err := http.Get(eraendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch current era value", err)
@@ -26,7 +25,7 @@ func FetchCurrentEra(cfg *config.Config) (string, error) {
 
 	var response types.CurrentEra
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch current epoch from endpoint:", err)
 		return "", err
 	}
 

@@ -10,8 +10,7 @@ import (
 )
 
 func FetchCurrentSlot(cfg *config.Config) (string, error) {
-	finalendpoint := cfg.Endpoint.URLEndpoint + "/pallets/babe/storage/currentSlot"
-	fmt.Printf("currentSlot: %v\n", finalendpoint)
+	finalendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/babe/storage/currentSlot"
 	resp, err := http.Get(finalendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch finalied block", err)
@@ -26,7 +25,7 @@ func FetchCurrentSlot(cfg *config.Config) (string, error) {
 
 	var response types.CurrentSlot
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch current slot from endpoint:", err)
 		return "", err
 	}
 

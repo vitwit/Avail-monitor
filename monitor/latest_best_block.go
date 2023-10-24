@@ -10,8 +10,7 @@ import (
 )
 
 func FetchBestBlock(cfg *config.Config) (string, error) {
-	blockendpoint := cfg.Endpoint.URLEndpoint + "/blocks/head"
-	fmt.Printf("epochindex enddpoint: %v\n", blockendpoint)
+	blockendpoint := cfg.RPC_Endpoint.URLEndpoint + "/blocks/head"
 	resp, err := http.Get(blockendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch epoch index", err)
@@ -26,7 +25,7 @@ func FetchBestBlock(cfg *config.Config) (string, error) {
 
 	var response types.BestBlock
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch latest best block from endpoint:", err)
 		return "", err
 	}
 

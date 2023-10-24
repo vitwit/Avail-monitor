@@ -10,8 +10,7 @@ import (
 )
 
 func FetchEpochEndTime(cfg *config.Config) (string, error) {
-	epochendpoint := cfg.Endpoint.URLEndpoint + "/pallets/babe/storage/epochStart"
-	fmt.Printf("epoch end time: %v\n", epochendpoint)
+	epochendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/babe/storage/epochStart"
 	resp, err := http.Get(epochendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch epoch end time", err)
@@ -26,7 +25,7 @@ func FetchEpochEndTime(cfg *config.Config) (string, error) {
 
 	var response types.EpochEndTime
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal JSON:", err)
+		fmt.Println("Failed to fetch current epoch end time from endpoint:", err)
 		return "", err
 	}
 
