@@ -63,17 +63,17 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.chainName, prometheus.GaugeValue, 1, chain)
 	}
 
-	councilMem, err := monitor.FetchCouncilMember(c.config)
-	if err != nil {
-		ch <- prometheus.NewInvalidMetric(c.councilMember, err)
-	} else {
-		ch <- prometheus.MustNewConstMetric(c.councilMember, prometheus.GaugeValue, 1, councilMem)
-	}
+	// councilMem, err := monitor.FetchCouncilMember(c.config)
+	// if err != nil {
+	// 	ch <- prometheus.NewInvalidMetric(c.councilMember, err)
+	// } else {
+	// 	ch <- prometheus.MustNewConstMetric(c.councilMember, prometheus.GaugeValue, 1, councilMem)
+	// }
 
-	electedMem, err := monitor.FetchElectedMember(c.config)
-	if err != nil {
-		ch <- prometheus.NewInvalidMetric(c.electedMember, err)
-	} else {
-		ch <- prometheus.MustNewConstMetric(c.electedMember, prometheus.GaugeValue, 1, electedMem)
-	}
+	// electedMem, err := monitor.FetchElectedMember(c.config)
+	// if err != nil {
+	// 	ch <- prometheus.NewInvalidMetric(c.electedMember, err)
+	// } else {
+	// 	ch <- prometheus.MustNewConstMetric(c.electedMember, prometheus.GaugeValue, 1, electedMem)
+	// }
 }

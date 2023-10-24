@@ -1,7 +1,6 @@
 package exporter
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"strconv"
@@ -73,15 +72,15 @@ var (
 		Help: "number of nomination pools",
 	})
 
-	totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "avail_monitor_council_proposals_total",
-		Help: "number of total council proposals on the network",
-	})
+	// totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
+	// 	Name: "avail_monitor_council_proposals_total",
+	// 	Help: "number of total council proposals on the network",
+	// })
 
-	totalPublicProposals = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "avail_monitor_public_proposals_total",
-		Help: "number of total public proposals on the network",
-	})
+	// totalPublicProposals = prometheus.NewGauge(prometheus.GaugeOpts{
+	// 	Name: "avail_monitor_public_proposals_total",
+	// 	Help: "number of total public proposals on the network",
+	// })
 
 //	currentValidators = prometheus.NewGauge(prometheus.GaugeOpts{
 //		Name: "current_validators",
@@ -102,8 +101,8 @@ func init() {
 	prometheus.MustRegister(currentEra)
 	prometheus.MustRegister(bountyProposals)
 	prometheus.MustRegister(nominationPool)
-	prometheus.MustRegister(totalCouncilProposals)
-	prometheus.MustRegister(totalPublicProposals)
+	// prometheus.MustRegister(totalCouncilProposals)
+	// prometheus.MustRegister(totalPublicProposals)
 	// 	prometheus.MustRegister(currentValidators)
 
 }
@@ -194,15 +193,15 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		currentEra.Set(ce)
 
-		publicProposal, err := monitor.FetchPublicProposalCount(c.config)
-		if err != nil {
-			log.Printf("Error while fetching public proposal count: %v", err)
-		}
-		pp, err := strconv.ParseFloat(publicProposal, 64)
-		if err != nil {
-			log.Printf("Error while converting public proposal count: %v", err)
-		}
-		totalPublicProposals.Set(pp)
+		// publicProposal, err := monitor.FetchPublicProposalCount(c.config)
+		// if err != nil {
+		// 	log.Printf("Error while fetching public proposal count: %v", err)
+		// }
+		// pp, err := strconv.ParseFloat(publicProposal, 64)
+		// if err != nil {
+		// 	log.Printf("Error while converting public proposal count: %v", err)
+		// }
+		// totalPublicProposals.Set(pp)
 
 		tokensIssued, err := monitor.FetchTotalTokensIssued(c.config)
 		if err != nil {
@@ -225,15 +224,15 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		nominationPool.Set(np)
 
-		councilproposal, err := monitor.FetchCouncilProposalCount(c.config)
-		if err != nil {
-			log.Printf("Error while fetching council proposal count: %v", err)
-		}
-		cpc, err := strconv.ParseFloat(councilproposal, 64)
-		fmt.Printf("cpc value: %v\n", cpc)
-		if err != nil {
-			log.Printf("Error while converting council proposal count: %v", err)
-		}
-		totalCouncilProposals.Set(cpc)
+		// councilproposal, err := monitor.FetchCouncilProposalCount(c.config)
+		// if err != nil {
+		// 	log.Printf("Error while fetching council proposal count: %v", err)
+		// }
+		// cpc, err := strconv.ParseFloat(councilproposal, 64)
+		// fmt.Printf("cpc value: %v\n", cpc)
+		// if err != nil {
+		// 	log.Printf("Error while converting council proposal count: %v", err)
+		// }
+		// totalCouncilProposals.Set(cpc)
 	}
 }
