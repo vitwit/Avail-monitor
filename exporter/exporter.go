@@ -1,6 +1,8 @@
 package exporter
 
 import (
+	"strings"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/vitwit/avail-monitor/config"
 	"github.com/vitwit/avail-monitor/monitor"
@@ -11,8 +13,9 @@ type availCollector struct {
 	nodeVersion *prometheus.Desc
 	chainName   *prometheus.Desc
 	// bondedToken        *prometheus.Desc
-	councilMember *prometheus.Desc
-	electedMember *prometheus.Desc
+	councilMember    *prometheus.Desc
+	electedMember    *prometheus.Desc
+	currentValidator *prometheus.Desc
 }
 
 func NewAvailCollector(cfg *config.Config) *availCollector {
@@ -37,6 +40,11 @@ func NewAvailCollector(cfg *config.Config) *availCollector {
 			"avail_monitor_elections_member",
 			"elected members of the network",
 			[]string{"value"}, nil),
+
+		currentValidator: prometheus.NewDesc(
+			"avail_monitor_current_validator",
+			"current validators of the network",
+			[]string{"value"}, nil),
 	}
 }
 
@@ -46,6 +54,7 @@ func (c *availCollector) Describe(ch chan<- *prometheus.Desc) {
 	// ch <- c.totaltokensIssued
 	ch <- c.councilMember
 	ch <- c.electedMember
+	ch <- c.currentValidator
 }
 
 func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
@@ -76,4 +85,13 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 	// } else {
 	// 	ch <- prometheus.MustNewConstMetric(c.electedMember, prometheus.GaugeValue, 1, electedMem)
 	// }
+
+	currentVal, err := monitor.FetchCurrentValidators(c.config)
+	if err != nil {
+		ch <- prometheus.NewInvalidMetric(c.currentValidator, err)
+	} else {
+		currentvalidator := strings.Join(currentVal, ", ") // Join the strings with a separator
+		ch <- prometheus.MustNewConstMetric(c.currentValidator, prometheus.GaugeValue, 1, currentvalidator)
+	}
+
 }

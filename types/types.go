@@ -77,3 +77,7 @@ type ElectedMembers struct {
 type bondedTokens struct {
 	Value string `json:"value"`
 }
+
+type CurrentValidators struct {
+	Value []string `json:"value"`
+}
