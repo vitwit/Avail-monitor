@@ -17,7 +17,6 @@ func FetchBondedToken(cfg *config.Config) (string, error) {
 	}
 
 	btendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/staking/storage/erasTotalStake?keys[]=" + currentEra
-	fmt.Println(btendpoint)
 	res, err := http.Get(btendpoint)
 	if err != nil {
 		fmt.Println("failed to fetch bonded token value", err)

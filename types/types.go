@@ -81,3 +81,9 @@ type BondedTokens struct {
 type CurrentValidators struct {
 	Value []string `json:"value"`
 }
+
+type TotalRewardsDistributed struct {
+	Value struct {
+		Total string `json:"total"`
+	} `json:"value"`
+}

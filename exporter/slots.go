@@ -72,6 +72,16 @@ var (
 		Help: "number of nomination pools",
 	})
 
+	totalRewardsDistributed = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "avail_monitor_total_rewards_distributed",
+		Help: "total rewards distributed to validator in era",
+	})
+
+	currentStakingRatio = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "avail_monitor_current_staking_ratio",
+		Help: "current staking ratio",
+	})
+
 	// totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
 	// 	Name: "avail_monitor_council_proposals_total",
 	// 	Help: "number of total council proposals on the network",
@@ -101,6 +111,8 @@ func init() {
 	prometheus.MustRegister(currentEra)
 	prometheus.MustRegister(bountyProposals)
 	prometheus.MustRegister(nominationPool)
+	prometheus.MustRegister(totalRewardsDistributed)
+	prometheus.MustRegister(currentStakingRatio)
 	// prometheus.MustRegister(totalCouncilProposals)
 	// prometheus.MustRegister(totalPublicProposals)
 }
@@ -191,6 +203,16 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		currentEra.Set(ce)
 
+		totalrewardsdist, err := monitor.FetchTotalRewardsDistributed(c.config)
+		if err != nil {
+			log.Printf("Error while fetching total rewards distributed to a val in era: %v", err)
+		}
+		trd, err := strconv.ParseFloat(totalrewardsdist, 64)
+		if err != nil {
+			log.Printf("Error while fetching total rewards distributed to a val in era: %v", err)
+		}
+		totalRewardsDistributed.Set(trd)
+
 		// publicProposal, err := monitor.FetchPublicProposalCount(c.config)
 		// if err != nil {
 		// 	log.Printf("Error while fetching public proposal count: %v", err)
@@ -232,6 +254,16 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 			log.Printf("Error while converting nomination pool: %v", err)
 		}
 		nominationPool.Set(np)
+
+		currentSR, err := monitor.FetchCurrentStakingRatio(c.config)
+		if err != nil {
+			log.Printf("Error while fetching current staking ratio value: %v", err)
+		}
+		// csr, err := strconv.ParseFloat(currentSR, 64)
+		// if err != nil {
+		// 	log.Printf("Error while converting current staking ratio: %v", err)
+		// }
+		currentStakingRatio.Set(currentSR)
 
 		// councilproposal, err := monitor.FetchCouncilProposalCount(c.config)
 		// if err != nil {
