@@ -91,11 +91,6 @@ var (
 	// 	Name: "avail_monitor_public_proposals_total",
 	// 	Help: "number of total public proposals on the network",
 	// })
-
-//	currentValidators = prometheus.NewGauge(prometheus.GaugeOpts{
-//		Name: "current_validators",
-//		Help: "list of current validators",
-//	})
 )
 
 func init() {
@@ -259,10 +254,6 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		if err != nil {
 			log.Printf("Error while fetching current staking ratio value: %v", err)
 		}
-		// csr, err := strconv.ParseFloat(currentSR, 64)
-		// if err != nil {
-		// 	log.Printf("Error while converting current staking ratio: %v", err)
-		// }
 		currentStakingRatio.Set(currentSR)
 
 		// councilproposal, err := monitor.FetchCouncilProposalCount(c.config)

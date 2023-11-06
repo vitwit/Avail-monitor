@@ -9,10 +9,9 @@ import (
 )
 
 type availCollector struct {
-	config      *config.Config
-	nodeVersion *prometheus.Desc
-	chainName   *prometheus.Desc
-	// bondedToken        *prometheus.Desc
+	config           *config.Config
+	nodeVersion      *prometheus.Desc
+	chainName        *prometheus.Desc
 	councilMember    *prometheus.Desc
 	electedMember    *prometheus.Desc
 	currentValidator *prometheus.Desc
@@ -51,7 +50,6 @@ func NewAvailCollector(cfg *config.Config) *availCollector {
 func (c *availCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.nodeVersion
 	ch <- c.chainName
-	// ch <- c.totaltokensIssued
 	ch <- c.councilMember
 	ch <- c.electedMember
 	ch <- c.currentValidator
@@ -90,7 +88,7 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		ch <- prometheus.NewInvalidMetric(c.currentValidator, err)
 	} else {
-		currentvalidator := strings.Join(currentVal, ", ") // Join the strings with a separator
+		currentvalidator := strings.Join(currentVal, ", ")
 		ch <- prometheus.MustNewConstMetric(c.currentValidator, prometheus.GaugeValue, 1, currentvalidator)
 	}
 }
