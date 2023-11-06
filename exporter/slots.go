@@ -52,10 +52,10 @@ var (
 		Help: "total tokens issued on the network",
 	})
 
-	// 	totalBondedTokens = prometheus.NewGauge(prometheus.GaugeOpts{
-	// 		Name: "avail_monitor_staking_total_bonded_tokens",
-	// 		Help: "total number of units issued on the network",
-	// 	})
+	totalBondedTokens = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "avail_monitor_staking_total_bonded_tokens",
+		Help: "total number of units issued on the network",
+	})
 
 	currentEra = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "avail_monitor_staking_current_era",
@@ -97,14 +97,12 @@ func init() {
 	prometheus.MustRegister(currentEpochStartTime)
 	prometheus.MustRegister(currentEpochEndTime)
 	prometheus.MustRegister(totalTokensIssued)
-	// 	prometheus.MustRegister(totalBondedTokens)
+	prometheus.MustRegister(totalBondedTokens)
 	prometheus.MustRegister(currentEra)
 	prometheus.MustRegister(bountyProposals)
 	prometheus.MustRegister(nominationPool)
 	// prometheus.MustRegister(totalCouncilProposals)
 	// prometheus.MustRegister(totalPublicProposals)
-	// 	prometheus.MustRegister(currentValidators)
-
 }
 
 func (c *availCollector) WatchSlots(cfg *config.Config) {
@@ -213,6 +211,17 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		abcd := math.Floor(tt / math.Pow(10, 18))
 		totalTokensIssued.Set(abcd)
+
+		bondedtokens, err := monitor.FetchBondedToken(c.config)
+		if err != nil {
+			log.Printf("Error while fetching bonded tokens: %v", err)
+		}
+		bt, err := strconv.ParseFloat(bondedtokens, 64)
+		if err != nil {
+			log.Printf("Error while converting bonded tokens: %v", err)
+		}
+		bondedtokenstotal := math.Floor(bt / math.Pow(10, 18))
+		totalBondedTokens.Set(bondedtokenstotal)
 
 		nPool, err := monitor.FetchNominationPool(c.config)
 		if err != nil {

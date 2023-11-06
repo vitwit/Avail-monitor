@@ -93,5 +93,4 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 		currentvalidator := strings.Join(currentVal, ", ") // Join the strings with a separator
 		ch <- prometheus.MustNewConstMetric(c.currentValidator, prometheus.GaugeValue, 1, currentvalidator)
 	}
-
 }
