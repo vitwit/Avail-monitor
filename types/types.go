@@ -87,3 +87,15 @@ type TotalRewardsDistributed struct {
 		Total string `json:"total"`
 	} `json:"value"`
 }
+
+type RewardPoolClaimed struct {
+	Value struct {
+		TotalRewardsClaimed string `json:"totalRewardsClaimed"`
+	} `json:"value"`
+}
+
+type NominatorPoolReward struct {
+	Value struct {
+		LastRecordedRewardCounter string `json:"lastRecordedRewardCounter"`
+	} `json:"value"`
+}

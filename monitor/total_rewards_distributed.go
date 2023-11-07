@@ -35,6 +35,5 @@ func FetchTotalRewardsDistributed(cfg *config.Config) (string, error) {
 		return "", err
 	}
 	rewardsdist := response.Value.Total
-	fmt.Println("********************************************", rewardsdist)
 	return rewardsdist, nil
 }

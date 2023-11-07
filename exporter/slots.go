@@ -82,6 +82,11 @@ var (
 		Help: "current staking ratio",
 	})
 
+	totalRewardsClaimed = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "avail_monitor_total_rewards_claimed",
+		Help: "total rewards claimed",
+	})
+
 	// totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
 	// 	Name: "avail_monitor_council_proposals_total",
 	// 	Help: "number of total council proposals on the network",
@@ -108,6 +113,7 @@ func init() {
 	prometheus.MustRegister(nominationPool)
 	prometheus.MustRegister(totalRewardsDistributed)
 	prometheus.MustRegister(currentStakingRatio)
+	prometheus.MustRegister(totalRewardsClaimed)
 	// prometheus.MustRegister(totalCouncilProposals)
 	// prometheus.MustRegister(totalPublicProposals)
 }
@@ -204,9 +210,19 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		trd, err := strconv.ParseFloat(totalrewardsdist, 64)
 		if err != nil {
-			log.Printf("Error while fetching total rewards distributed to a val in era: %v", err)
+			log.Printf("Error while converting total rewards distributed to a val in era: %v", err)
 		}
 		totalRewardsDistributed.Set(trd)
+
+		totalrewardsclaimed, err := monitor.FetchTotalRewardsClaimed(c.config)
+		if err != nil {
+			log.Printf("Error while fetching total rewards claimed: %v", err)
+		}
+		trc, err := strconv.ParseFloat(totalrewardsclaimed, 64)
+		if err != nil {
+			log.Printf("Error while converting total rewards claimed: %v", err)
+		}
+		totalRewardsClaimed.Set(trc)
 
 		// publicProposal, err := monitor.FetchPublicProposalCount(c.config)
 		// if err != nil {
