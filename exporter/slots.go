@@ -87,6 +87,11 @@ var (
 		Help: "total rewards claimed",
 	})
 
+	recordedRewardCounter = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "avail_monitor_last_recorded_reward_counter",
+		Help: "last recorded reward counter",
+	})
+
 	// totalCouncilProposals = prometheus.NewGauge(prometheus.GaugeOpts{
 	// 	Name: "avail_monitor_council_proposals_total",
 	// 	Help: "number of total council proposals on the network",
@@ -114,6 +119,7 @@ func init() {
 	prometheus.MustRegister(totalRewardsDistributed)
 	prometheus.MustRegister(currentStakingRatio)
 	prometheus.MustRegister(totalRewardsClaimed)
+	prometheus.MustRegister(recordedRewardCounter)
 	// prometheus.MustRegister(totalCouncilProposals)
 	// prometheus.MustRegister(totalPublicProposals)
 }
@@ -218,11 +224,13 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		if err != nil {
 			log.Printf("Error while fetching total rewards claimed: %v", err)
 		}
-		trc, err := strconv.ParseFloat(totalrewardsclaimed, 64)
+		totalRewardsClaimed.Set(totalrewardsclaimed)
+
+		poolReward, err := monitor.FetchNominatorPoolRewards(c.config)
 		if err != nil {
-			log.Printf("Error while converting total rewards claimed: %v", err)
+			log.Printf("Error while fetching nominator pool rewards: %v", err)
 		}
-		totalRewardsClaimed.Set(trc)
+		recordedRewardCounter.Set(poolReward)
 
 		// publicProposal, err := monitor.FetchPublicProposalCount(c.config)
 		// if err != nil {

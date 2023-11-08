@@ -3,39 +3,60 @@ package monitor
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
+	"strconv"
 
 	"github.com/vitwit/avail-monitor/config"
 	"github.com/vitwit/avail-monitor/types"
 )
 
-func FetchTotalNominatorPoolRewards(cfg *config.Config) (string, error) {
+func FetchNominatorPoolRewards(cfg *config.Config) (float64, error) {
 	nominationPool, err := FetchNominationPool(cfg)
 	if err != nil {
 		fmt.Println("failed to fetch nomination pool value for total rewards claimed:", err)
-		return "", err
+		return 0, err
 	}
 
-	tnprendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/staking/storage/erasRewardPoints?keys[]=" + nominationPool
-	res, err := http.Get(tnprendpoint)
+	nomination, err := strconv.ParseInt(nominationPool, 10, 64)
 	if err != nil {
-		fmt.Println("failed to fetch total nomination pool rewards", err)
-		return "", err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		fmt.Printf("failed to fetch total nomination reward pool %d\n", res.StatusCode)
-		return "", err
+		return 0, err
 	}
 
-	var response types.NominatorPoolReward
-	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
-		fmt.Println("Failed to unmarshal total nomination pool rewards JSON:", err)
-		return "", err
-	}
+	var nominatorpoolReward float64
 
-	nominatorpoolrew := response.Value.LastRecordedRewardCounter
-	fmt.Println("******************nomina*************************************", nominatorpoolrew)
-	return nominatorpoolrew, nil
+	for i := 1; i <= int(nomination); i++ {
+		pqrs := strconv.Itoa(i)
+		trcendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/nominationPools/storage/rewardPools?keys[]=" + pqrs
+		res, err := http.Get(trcendpoint)
+		if err != nil {
+			fmt.Println("failed to fetch total rewards claimed value", err)
+			return 0, err
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode != http.StatusOK {
+			fmt.Printf("failed to fetch current total rewards claimed code %d\n", res.StatusCode)
+			return 0, err
+		}
+
+		var response types.NominatorPoolReward
+		if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
+			fmt.Println("Failed to unmarshal total rewards claimed JSON:", err)
+			return 0, err
+		}
+		rewardclaim := response.Value.LastRecordedRewardCounter
+		rc, err := strconv.ParseFloat(rewardclaim, 64)
+		if err != nil {
+			fmt.Println("failed to convert rewards claim to int", err)
+			return 0, err
+		}
+
+		abc := math.Floor(rc / math.Pow(10, 18))
+		nominatorpoolReward = nominatorpoolReward + abc
+		return nominatorpoolReward, nil
+
+	}
+	return 0, nil
+
 }
