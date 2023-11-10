@@ -38,12 +38,12 @@ var (
 	})
 
 	currentEpochStartTime = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "avail_monitor_current_epoch_start",
+		Name: "avail_monitor_babe_current_epoch_start",
 		Help: "Block height on which the current epoch started",
 	})
 
 	currentEpochEndTime = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "avail_monitor_current_epoch_end",
+		Name: "avail_monitor_babe_current_epoch_end",
 		Help: "Block height on which the current epoch ends",
 	})
 
@@ -62,13 +62,8 @@ var (
 		Help: "current era",
 	})
 
-	bountyProposals = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "avail_monitor_bounty_proposals_total",
-		Help: "numbet of bounty proposals made on the network",
-	})
-
 	nominationPool = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "avail_monitor_nomination_pool",
+		Name: "avail_monitor_nomination_pools",
 		Help: "number of nomination pools",
 	})
 
@@ -88,7 +83,7 @@ var (
 	})
 
 	recordedRewardCounter = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "avail_monitor_last_recorded_reward_counter",
+		Name: "avail_monitor_last_recorded_reward",
 		Help: "last recorded reward counter",
 	})
 
@@ -114,7 +109,6 @@ func init() {
 	prometheus.MustRegister(totalTokensIssued)
 	prometheus.MustRegister(totalBondedTokens)
 	prometheus.MustRegister(currentEra)
-	prometheus.MustRegister(bountyProposals)
 	prometheus.MustRegister(nominationPool)
 	prometheus.MustRegister(totalRewardsDistributed)
 	prometheus.MustRegister(currentStakingRatio)
@@ -159,16 +153,6 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 			log.Printf("Error while converting current slot: %v", err)
 		}
 		currentSlot.Set(cs)
-
-		bountyP, err := monitor.FetchBountyProposalCount(c.config)
-		if err != nil {
-			log.Printf("Error while fetching bounty proposal count: %v", err)
-		}
-		bp, err := strconv.ParseFloat(bountyP, 64)
-		if err != nil {
-			log.Printf("Error while converting bounty proposal: %v", err)
-		}
-		bountyProposals.Set(bp)
 
 		endT, err := monitor.FetchEpochEndTime(c.config)
 		if err != nil {

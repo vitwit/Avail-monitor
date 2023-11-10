@@ -30,16 +30,6 @@ func NewAvailCollector(cfg *config.Config) *availCollector {
 			"Name of the chain",
 			[]string{"chain"}, nil),
 
-		councilMember: prometheus.NewDesc(
-			"avail_monitor_council_members",
-			"council members of the network",
-			[]string{"value"}, nil),
-
-		electedMember: prometheus.NewDesc(
-			"avail_monitor_elections_member",
-			"elected members of the network",
-			[]string{"value"}, nil),
-
 		currentValidator: prometheus.NewDesc(
 			"avail_monitor_current_validator",
 			"current validators of the network",
@@ -69,20 +59,6 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(c.chainName, prometheus.GaugeValue, 1, chain)
 	}
-
-	// councilMem, err := monitor.FetchCouncilMember(c.config)
-	// if err != nil {
-	// 	ch <- prometheus.NewInvalidMetric(c.councilMember, err)
-	// } else {
-	// 	ch <- prometheus.MustNewConstMetric(c.councilMember, prometheus.GaugeValue, 1, councilMem)
-	// }
-
-	// electedMem, err := monitor.FetchElectedMember(c.config)
-	// if err != nil {
-	// 	ch <- prometheus.NewInvalidMetric(c.electedMember, err)
-	// } else {
-	// 	ch <- prometheus.MustNewConstMetric(c.electedMember, prometheus.GaugeValue, 1, electedMem)
-	// }
 
 	currentVal, err := monitor.FetchCurrentValidators(c.config)
 	if err != nil {
