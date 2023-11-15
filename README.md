@@ -1,5 +1,7 @@
 # Avail-monitor
 
+![](./docs/logo.png)
+
 **Avail-monitor** is a monitoring tool to monitor the network health of Avail.It uses prometheus to store metrics and grafana dashboard to monitor the health of various metrics.
 
 # Features
