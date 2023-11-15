@@ -11,11 +11,9 @@ import (
 	"github.com/vitwit/avail-monitor/monitor"
 )
 
+// scrape time = 25 secs
 const slotTimeOut = 25 * time.Second
 
-// // scrape time = 25 secs
-// // two different scrape times if yes {different set of metrics}
-// // all the queries in single ws conn.
 var (
 	latestBestBlock = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "avail_monitor_chain_best_block",
@@ -110,8 +108,6 @@ func init() {
 	prometheus.MustRegister(totalRewardsClaimed)
 	prometheus.MustRegister(recordedRewardCounter)
 	prometheus.MustRegister(currentValidator)
-	// prometheus.MustRegister(totalCouncilProposals)
-	// prometheus.MustRegister(totalPublicProposals)
 }
 
 func (c *availCollector) WatchSlots(cfg *config.Config) {
@@ -120,6 +116,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 	for {
 		<-ticker.C
 
+		//get timestamp of latest block
 		timestamp, err := monitor.FetchTimeStamp(c.config)
 		if err != nil {
 			log.Printf("Error while getting timestamp: %v", err)
@@ -130,6 +127,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		timestampOfLatestBlock.Set(ts)
 
+		//get best block
 		bestBlock, err := monitor.FetchBestBlock(c.config)
 		if err != nil {
 			log.Printf("Error while fetching best block: %v", err)

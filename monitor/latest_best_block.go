@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchBestBlock returns the latest best block of the network
 func FetchBestBlock(cfg *config.Config) (string, error) {
 	blockendpoint := cfg.RPC_Endpoint.URLEndpoint + "/blocks/head"
 	resp, err := http.Get(blockendpoint)

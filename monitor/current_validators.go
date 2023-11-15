@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchCurrentValidators returns the no. of current validators
 func FetchCurrentValidators(cfg *config.Config) (int, error) {
 	cvEndpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/session/storage/validators"
 	resp, err := http.Get(cvEndpoint)

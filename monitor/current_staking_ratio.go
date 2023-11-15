@@ -7,6 +7,9 @@ import (
 	"github.com/vitwit/avail-monitor/config"
 )
 
+// FetchCurrentStakingRatio displays the ratio of
+// ratio of total bonded tokens to total tokens issued on the network and
+// multiplying the result by 100
 func FetchCurrentStakingRatio(cfg *config.Config) (float64, error) {
 	bondedTokens, err := FetchBondedToken(cfg)
 	if err != nil {

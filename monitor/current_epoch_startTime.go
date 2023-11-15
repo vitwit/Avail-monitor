@@ -9,6 +9,8 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchEPochStartTime returns the block height on
+// which current epoch started
 func FetchEpochStartTime(cfg *config.Config) (string, error) {
 	startendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/babe/storage/epochStart"
 	resp, err := http.Get(startendpoint)

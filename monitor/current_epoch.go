@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchEpochIndex returns the current epoch
 func FetchEpochIndex(cfg *config.Config) (string, error) {
 	epochendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/babe/storage/epochIndex"
 	resp, err := http.Get(epochendpoint)

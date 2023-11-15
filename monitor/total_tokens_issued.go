@@ -9,6 +9,8 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchTotalTokensIssued returns the total no of tokens
+// issued on the avail network
 func FetchTotalTokensIssued(cfg *config.Config) (string, error) {
 	tokenendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/balances/storage/totalIssuance"
 	resp, err := http.Get(tokenendpoint)

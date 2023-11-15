@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchNominationPool returns the no. of nomination pools
 func FetchNominationPool(cfg *config.Config) (string, error) {
 	poolendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/nominationPools/storage/counterForBondedPools"
 	resp, err := http.Get(poolendpoint)

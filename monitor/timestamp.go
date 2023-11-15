@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchTimestamp returns the timestamp of latest block
 func FetchTimeStamp(cfg *config.Config) (string, error) {
 	tsendpoint := cfg.RPC_Endpoint.URLEndpoint + "/blocks/head"
 	resp, err := http.Get(tsendpoint)

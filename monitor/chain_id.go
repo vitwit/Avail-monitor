@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/config"
 )
 
+// FetchChainID return the chain ID of the network
 func FetchChainID(cfg *config.Config) (string, error) {
 	endpoint := cfg.RPC_Endpoint.URLEndpoint + "/node/version"
 	resp, err := http.Get(endpoint)

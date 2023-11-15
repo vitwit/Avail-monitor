@@ -6,12 +6,14 @@ import (
 	"github.com/vitwit/avail-monitor/monitor"
 )
 
+// availCollector represents the set of avail metrics
 type availCollector struct {
 	config      *config.Config
 	nodeVersion *prometheus.Desc
 	chainName   *prometheus.Desc
 }
 
+// /NewAvailCollector exports availCollector metrics to prometheus
 func NewAvailCollector(cfg *config.Config) *availCollector {
 	return &availCollector{
 		config: cfg,

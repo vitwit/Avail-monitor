@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/config"
 )
 
+// Fetchversion returns the current version of the  avail network
 func FetchVersion(cfg *config.Config) (string, error) {
 	endpoint := cfg.RPC_Endpoint.URLEndpoint + "/node/version"
 	resp, err := http.Get(endpoint)

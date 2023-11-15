@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchCurrentSlot returns the current slot of the network
 func FetchCurrentSlot(cfg *config.Config) (string, error) {
 	finalendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/babe/storage/currentSlot"
 	resp, err := http.Get(finalendpoint)

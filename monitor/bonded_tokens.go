@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchBondedToken returns total bonded tokens issued on the network
 func FetchBondedToken(cfg *config.Config) (string, error) {
 	currentEra, err := FetchCurrentEra(cfg)
 	if err != nil {

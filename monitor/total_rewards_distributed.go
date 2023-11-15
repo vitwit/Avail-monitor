@@ -9,6 +9,8 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchTotalRewardsDistributed returns the total rewards
+// distributed on the avail network
 func FetchTotalRewardsDistributed(cfg *config.Config) (string, error) {
 	currentEra, err := FetchCurrentEra(cfg)
 	if err != nil {

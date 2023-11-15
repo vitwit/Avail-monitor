@@ -11,6 +11,8 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchNominatorPoolRewards returns the summation of all the reward pools
+// on the avail network
 func FetchNominatorPoolRewards(cfg *config.Config) (float64, error) {
 	nominationPool, err := FetchNominationPool(cfg)
 	if err != nil {

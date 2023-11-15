@@ -9,6 +9,8 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchEPochEndTime returns the block height on
+// which current epoch ended
 func FetchEpochEndTime(cfg *config.Config) (string, error) {
 	epochendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/babe/storage/epochStart"
 	resp, err := http.Get(epochendpoint)

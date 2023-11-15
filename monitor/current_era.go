@@ -9,6 +9,7 @@ import (
 	"github.com/vitwit/avail-monitor/types"
 )
 
+// FetchCurrentEra returns the current era of the network
 func FetchCurrentEra(cfg *config.Config) (string, error) {
 	eraendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/staking/storage/currentEra"
 	resp, err := http.Get(eraendpoint)
