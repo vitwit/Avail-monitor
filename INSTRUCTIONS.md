@@ -1,12 +1,12 @@
-### Avail Monitor setup
+# Avail Monitor setup
 
-# Prerequisites
+## Prerequisites
 
 - Go 1.20+
 - Prometheus 2.x+
 - Grafana
 
-# Installing Prerequisites
+## Installing Prerequisites
 
 - [Installlation script](#Installation-script)
 - [Manual Installation](#Manual-Installation)
