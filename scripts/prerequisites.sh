@@ -4,7 +4,7 @@ set -e
 
 cd $HOME
 
-echo ""------- checking for go, will be installed if not installed already -------"
+echo "------- checking for go, will be installed if not installed already -------"
 
 command_exists () {
     type "$1" &> dev/null ;
