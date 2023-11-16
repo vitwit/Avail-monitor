@@ -28,8 +28,8 @@ func FetchTotalRewardsClaimed(cfg *config.Config) (float64, error) {
 	var totalrewardsClaimed float64
 
 	for i := 1; i <= int(nomination); i++ {
-		pqrs := strconv.Itoa(i)
-		trcendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/nominationPools/storage/rewardPools?keys[]=" + pqrs
+		trc := strconv.Itoa(i)
+		trcendpoint := cfg.RPC_Endpoint.URLEndpoint + "/pallets/nominationPools/storage/rewardPools?keys[]=" + trc
 		res, err := http.Get(trcendpoint)
 		if err != nil {
 			fmt.Println("failed to fetch total rewards claimed value", err)
@@ -54,8 +54,8 @@ func FetchTotalRewardsClaimed(cfg *config.Config) (float64, error) {
 			return 0, err
 		}
 
-		abc := math.Floor(rc / math.Pow(10, 18))
-		totalrewardsClaimed = totalrewardsClaimed + abc
+		npreward := math.Floor(rc / math.Pow(10, 18))
+		totalrewardsClaimed = totalrewardsClaimed + npreward
 		return totalrewardsClaimed, nil
 
 	}

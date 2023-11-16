@@ -116,7 +116,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 	for {
 		<-ticker.C
 
-		//get timestamp of latest block
+		//get timestamp of latest block of avail network
 		timestamp, err := monitor.FetchTimeStamp(c.config)
 		if err != nil {
 			log.Printf("Error while getting timestamp: %v", err)
@@ -127,7 +127,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		timestampOfLatestBlock.Set(ts)
 
-		//get best block
+		//get best block of the avail network
 		bestBlock, err := monitor.FetchBestBlock(c.config)
 		if err != nil {
 			log.Printf("Error while fetching best block: %v", err)
@@ -138,6 +138,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		latestBestBlock.Set(bb)
 
+		//get current slot of the network
 		slot, err := monitor.FetchCurrentSlot(c.config)
 		if err != nil {
 			log.Printf("Error while fetching current slot %v", err)
@@ -148,6 +149,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		currentSlot.Set(cs)
 
+		//get current epoch end time of avail network
 		endT, err := monitor.FetchEpochEndTime(c.config)
 		if err != nil {
 			log.Printf("Error while fetching epoch end time: %v", err)
@@ -158,6 +160,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		currentEpochEndTime.Set(eT)
 
+		//get current epoch start time of avail network
 		startT, err := monitor.FetchEpochStartTime(c.config)
 		if err != nil {
 			log.Printf("Error while fetching epoch start time: %v", err)
@@ -168,6 +171,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		currentEpochStartTime.Set(sT)
 
+		//get current epoch of avail network
 		cEpoch, err := monitor.FetchEpochIndex(c.config)
 		if err != nil {
 			log.Printf("Error while fetching current epoch: %v", err)
@@ -178,6 +182,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		currentEpoch.Set(cE)
 
+		//get current era of avail network
 		cEra, err := monitor.FetchCurrentEra(c.config)
 		if err != nil {
 			log.Printf("Error while fetching current era: %v", err)
@@ -188,6 +193,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		currentEra.Set(ce)
 
+		//get total rewards distributed on avail network
 		totalrewardsdist, err := monitor.FetchTotalRewardsDistributed(c.config)
 		if err != nil {
 			log.Printf("Error while fetching total rewards distributed to a val in era: %v", err)
@@ -198,18 +204,21 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		totalRewardsDistributed.Set(trd)
 
+		//get total rewards claimed on avail network
 		totalrewardsclaimed, err := monitor.FetchTotalRewardsClaimed(c.config)
 		if err != nil {
 			log.Printf("Error while fetching total rewards claimed: %v", err)
 		}
 		totalRewardsClaimed.Set(totalrewardsclaimed)
 
+		//get nominator pool reward on avail network
 		poolReward, err := monitor.FetchNominatorPoolRewards(c.config)
 		if err != nil {
 			log.Printf("Error while fetching nominator pool rewards: %v", err)
 		}
 		recordedRewardCounter.Set(poolReward)
 
+		//get total tokens isssued on the avail network
 		tokensIssued, err := monitor.FetchTotalTokensIssued(c.config)
 		if err != nil {
 			log.Printf("Error while fetching total tokens issued: %v", err)
@@ -218,9 +227,10 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		if err != nil {
 			log.Printf("Error while converting total tokens: %v", err)
 		}
-		abcd := math.Floor(tt / math.Pow(10, 18))
-		totalTokensIssued.Set(abcd)
+		tti := math.Floor(tt / math.Pow(10, 18))
+		totalTokensIssued.Set(tti)
 
+		//get total bonded tokens on the network
 		bondedtokens, err := monitor.FetchBondedToken(c.config)
 		if err != nil {
 			log.Printf("Error while fetching bonded tokens: %v", err)
@@ -232,6 +242,7 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		bondedtokenstotal := math.Floor(bt / math.Pow(10, 18))
 		totalBondedTokens.Set(bondedtokenstotal)
 
+		//get nomination pool on avail network
 		nPool, err := monitor.FetchNominationPool(c.config)
 		if err != nil {
 			log.Printf("Error while fetching nomination pool value: %v", err)
@@ -242,12 +253,14 @@ func (c *availCollector) WatchSlots(cfg *config.Config) {
 		}
 		nominationPool.Set(np)
 
+		//get current staking ratio on avail network
 		currentSR, err := monitor.FetchCurrentStakingRatio(c.config)
 		if err != nil {
 			log.Printf("Error while fetching current staking ratio value: %v", err)
 		}
 		currentStakingRatio.Set(currentSR)
 
+		//get no. of current validator on avail network
 		currentVal, err := monitor.FetchCurrentValidators(c.config)
 		if err != nil {
 			log.Printf("Error while getting count of current validators: %v", err)

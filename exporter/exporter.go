@@ -35,6 +35,7 @@ func (c *availCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
+	//get version of avail network
 	version, err := monitor.FetchVersion(c.config)
 	if err != nil {
 		ch <- prometheus.NewInvalidMetric(c.nodeVersion, err)
@@ -42,6 +43,7 @@ func (c *availCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(c.nodeVersion, prometheus.GaugeValue, 1, version)
 	}
 
+	//get chain ID of avail network
 	chain, err := monitor.FetchChainID(c.config)
 	if err != nil {
 		ch <- prometheus.NewInvalidMetric(c.nodeVersion, err)
