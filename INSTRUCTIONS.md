@@ -15,13 +15,17 @@ Either of the above methods can be used to install the prerequisites
 
 ## Installation-script
 
-- click here to view Installation script
+- [click here](./INSTRUCTIONS.md) to view Installation script
 - Installation script downloads and installs prometheus & grafana; go if its not already installed
 - Execute the script using the following command
 
 ```bash
 curl -s -L https://raw.githubusercontent.com/vitwit/avail-monitor/avail-develop/scripts/prerequisites.sh 
 ```
+
+## Manual-Installation
+
+- To install prerequisites manually, please follow this [guide](./docs/prerequisite_manual.md)
 
 
 

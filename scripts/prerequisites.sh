@@ -4,7 +4,7 @@ set -e
 
 cd $HOME
 
-echo ""-------checking for go, will be installed if not installed already-------"
+echo ""------- checking for go, will be installed if not installed already -------"
 
 command_exists () {
     type "$1" &> dev/null ;
@@ -42,9 +42,9 @@ echo "-------Installing grafana-------"
 
 sudo apt-get install -y adduser libfontconfig1 musl
 
-wget https://dl.grafana.com/enterprise/release/grafana-enterprise_10.2.1_amd64.deb
+wget https://dl.grafana.com/oss/release/grafana_10.2.1_amd64.deb
 
-sudo dpkg -i grafana-enterprise_10.2.1_amd64.deb
+sudo dpkg -i grafana_10.2.1_amd64.deb
 
 echo "-------Starting grafana server using systemd-------"
 
@@ -74,7 +74,7 @@ echo "
     static_configs:
       - targets: ['localhost:1234']" >> "$HOME/prometheus.yml"
 
-echo "------- Setup prometheus system service -------"
+echo "------- Setting up prometheus system service -------"
 
 echo "[Unit]
 Description=Prometheus
@@ -90,7 +90,7 @@ LimitNOFILE=4096
 [Install]
 WantedBy=multi-user.target" | sudo tee "/lib/systemd/system/prometheus.service"
 
-echo "------ Start prometheus -----------"
+echo "------starting prometheus -----------"
 
 sudo systemctl daemon-reload
 sudo systemctl enable prometheus.service
