@@ -16,7 +16,7 @@ Either of the above methods can be used to install the prerequisites
 ## Installation-script
 
 - [click here](./scripts/prerequisites.sh) to view Installation script
-- Installation script downloads and installs prometheus & grafana; go if its not already installed
+- Installation script downloads and installs prometheus & grafana, downloads go if it's not already installed.
 - Execute the script using the following command
 
 ```bash
