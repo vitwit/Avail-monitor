@@ -8,8 +8,8 @@
 
 ## Installing Prerequisites
 
-- [Installlation script](#Installation-script)
-- [Manual Installation](#Manual-Installation)
+- Installlation script
+- Manual Installation
 
 Either of the above methods can be used to install the prerequisites
 
