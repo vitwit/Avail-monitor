@@ -20,7 +20,7 @@ Either of the above methods can be used to install the prerequisites
 - Execute the script using the following command
 
 ```bash
-curl -s -L https://raw.githubusercontent.com/vitwit/avail-monitor/avail-develop/scripts/prerequisites.sh | bash
+curl -s -L https://raw.githubusercontent.com/vitwit/Avail-monitor/main/scripts/prerequisites.sh | bash
 ```
 
 ## Manual-Installation
@@ -46,7 +46,7 @@ You can find the tool installation script [here](./scripts/tool_installation.sh)
 
 You can execute the script using the following one-liner
 ```bash
-curl -s -L https://raw.githubusercontent.com/vitwit/avail-monitor/avail-develop/scripts/tool_installation.sh | bash
+curl -s -L https://raw.githubusercontent.com/vitwit/Avail-monitor/main/scripts/tool_installation.sh | bash
 ```
 
 You can check the logs of the tool using:
