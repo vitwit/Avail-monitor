@@ -15,7 +15,7 @@ if command_exists go ; then
 else
     echo "-----Installing dependencies-----"
     sudo apt update
-    sudo apt install build essentials jq -y
+    sudo apt-get install build essentials jq -y
 
     wget https://dl.google.com/go/go1.20.3.linux-amd64.tar.gz
     tar -xvf go1.20.3.linux-amd64.tar.gz
