@@ -6,7 +6,7 @@ cd ~/avail-monitor
 
 cp example.config.toml config.toml
 
-sed -i "s/<sidecar endpoint>/$SIDECAR_ENDPOINT/g" config.toml
+sed -i "s@<sidecar-endpoint>@$SIDECAR_ENDPOINT@g" config.toml
 
 go build -o avail-monitor
 
