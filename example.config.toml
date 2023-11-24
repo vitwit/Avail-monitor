@@ -1,5 +1,5 @@
 [url_endpoint]
-url_endpoint = "<sidecar endpoint>"
+url_endpoint = "<sidecar-endpoint>"
 
 [prometheus]
 listen_address = ":1234"
