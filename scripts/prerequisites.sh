@@ -66,13 +66,13 @@ cp prometheus-2.22.1.linux-amd64/prometheus.yml $HOME
 echo "----- writing prometheus.yml-----"
 
 echo "
-- job_name: prometheus
+  - job_name: 'avail-monitor'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
     static_configs:
-      - targets: ['localhost:9090']
-    
-- job_name: avail
-    static_configs:
-      - targets: ['localhost:1234']" >> "$HOME/prometheus.yml"
+    - targets: ['localhost:1234'] >> "$HOME/prometheus.yml"
 
 echo "------- Setting up prometheus system service -------"
 
