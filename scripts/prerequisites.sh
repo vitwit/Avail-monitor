@@ -7,7 +7,7 @@ cd $HOME
 echo "------- checking for go, will be installed if not installed already -------"
 
 command_exists () {
-    type "$1" &> dev/null ;
+    type "$1" &> /dev/null ;
 }
 
 if command_exists go ; then
