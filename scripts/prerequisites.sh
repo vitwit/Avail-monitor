@@ -14,7 +14,7 @@ if command_exists go ; then
     echo "Golang is already installed"
 else
     echo "-----Installing dependencies-----"
-    sudo apt update
+    sudo apt-get update
     sudo apt-get install build essentials jq -y
 
     wget https://dl.google.com/go/go1.20.3.linux-amd64.tar.gz
