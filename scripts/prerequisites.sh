@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 cd $HOME
 
 echo "------- checking for go, will be installed if not installed already -------"
