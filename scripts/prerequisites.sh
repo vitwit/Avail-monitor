@@ -93,5 +93,9 @@ echo "------starting prometheus -----------"
 sudo systemctl daemon-reload
 sudo systemctl enable prometheus.service
 sudo systemctl start prometheus.service
+rm ~/grafana_10.2.1_amd64.deb
+rm ~/prometheus-2.22.1.linux-amd64.tar.gz
+rm ~/go1.20.3.linux-amd64.tar.gz
+rm -rf ~/prometheus-2.22.1.linux-amd64
 
 echo "------- Installation completed successfully -------"
